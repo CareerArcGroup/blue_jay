@@ -1,0 +1,8 @@
+credentials:
+ consumer_key:       my_consumer_key
+ consumer_secret:    my_consumer_secret
+ token:              my_token
+ secret:             my_secret
+settings:
+ friend_id:          12345
+ friend_screen_name: MyFriend

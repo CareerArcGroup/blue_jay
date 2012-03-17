@@ -1,4 +1,9 @@
 
+require 'blue_jay/account'
+require 'blue_jay/status'
+require 'blue_jay/response'
+require 'blue_jay/user'
+
 module BlueJay
 	class Client
 
@@ -18,8 +23,22 @@ module BlueJay
 			@access_token
 		end
 
-		def is_connected?
-			get_raw("/help/test.json") == %q("ok")
+		def connected?
+			get_raw("/help/test.json").body == %q("ok")
+		end
+
+		def authorized?
+			response = get_raw("/account/verify_credentials.json")
+			response.class == Net::HTTPOK
+		end
+
+		def request_token(options={})
+			consumer.get_request_token(options)
+		end
+
+		def authentication_request_token(options={})
+			consumer.options[:authorize_path] = '/oauth/authenticate'
+			request_token(options)
 		end
 
 		private
@@ -37,21 +56,21 @@ module BlueJay
 		end
 
 		def get(path, headers={})
-			JSON.parse(get_raw(path, headers))
+			BlueJay::Response.new(get_raw(path, headers))
 		end
 
 		def get_raw(path, headers={})
 			add_standard_headers(headers)
-			access_token.get("/1#{path}", headers).body
+			access_token.get("/1#{path}", headers)
 		end
 
 		def post(path, body='', headers={})
-			JSON.parse(post_raw(path,body,headers))
+			BlueJay::Response.new(post_raw(path,body,headers))
 		end
 
 		def post_raw(path, body='', headers={})
 			add_standard_headers(headers)
-			access_token.post("/1#{path}", body, headers).body
+			access_token.post("/1#{path}", body, headers)
 		end
 
 		def add_standard_headers(headers={})
