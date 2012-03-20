@@ -35,7 +35,6 @@ describe Client do
 		@disconnected_client = Client.new(credentials_hash.merge(:proxy => 'localhost'))
 		@unauthorized_client = Client.new
 
-
 	end
 
 	it "get an OK response from the Twitter test endpoint" do
@@ -132,6 +131,20 @@ describe Client do
 
 			reset_response.should be_successful
 
+		end
+
+		it "can retrieve a user's recent tweets" do
+			response = @client.recent_tweets(@friend_id)
+			response.should be_successful
+			response.data.should be_a_kind_of Array
+			response.data.size.should be > 0
+		end
+
+		it "can retrieve a user's follower's IDs" do
+			response = @client.follower_ids(@friend_id)
+			response.should be_successful
+			response.data["ids"].should be_a_kind_of Array
+			response.data["ids"].size.should be > 0
 		end
 
 	end

@@ -21,7 +21,7 @@ module BlueJay
 			begin
 				# try to parse the response as JSON...
 				@data = JSON.parse(response.body)
-				@success = true
+				@success = (response.kind_of?(Net::HTTPSuccess))
 			rescue JSON::ParserError => e
 				# if we can't parse the response, return
 				# a json response anyway that gives us information
