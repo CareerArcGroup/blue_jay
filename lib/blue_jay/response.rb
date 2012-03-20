@@ -21,6 +21,8 @@ module BlueJay
 
 		def parse_response(response)
 			@success = false
+			@data = nil
+			@error = nil
 
 			# handle the case of the empty or missing response...
 			return if response.nil? || !response.kind_of?(Net::HTTPResponse)
@@ -33,15 +35,21 @@ module BlueJay
 			@rate_limit_reset_time = (reset_time_ticks) ? Time.at(reset_time_ticks.to_i) : nil
 
 			begin
+
 				# try to parse the response as JSON...
 				@data = JSON.parse(response.body)
-				@success = (response.kind_of?(Net::HTTPSuccess))
+
+				# errors can be detected by the status code (not Success) or
+				# by the presence of an "error" object in the de-serialized response...
+				@success = (response.kind_of?(Net::HTTPSuccess) && !@data.error.present?)
+				@error = @data.error if @data.error.present?
+
 			rescue JSON::ParserError => e
 				# if we can't parse the response, return
 				# a json response anyway that gives us information
 				# about the response in a well structured manner...
 				@data = response.body
-				@parse_error = e
+				@error = e
 			end
 		end
 
