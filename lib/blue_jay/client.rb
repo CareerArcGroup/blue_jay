@@ -14,6 +14,7 @@ module BlueJay
 		  @token = options[:token]
 		  @secret = options[:secret]
 		  @proxy = options[:proxy]
+			@debug = options[:debug]
 	  end
 
 		def authorize(token, secret, options={})
@@ -179,20 +180,22 @@ module BlueJay
 		end
 
 		def get(path, headers={})
-			BlueJay::Response.new(get_raw(path, headers))
+			BlueJay::Response.new(get_raw(path, headers), @debug)
 		end
 
 		def get_raw(path, headers={})
 			add_standard_headers(headers)
+			puts "BlueJay => GET /1#{path} #{headers}" if @debug
 			access_token.get("/1#{path}", headers)
 		end
 
 		def post(path, body='', headers={})
-			BlueJay::Response.new(post_raw(path,body,headers))
+			BlueJay::Response.new(post_raw(path,body,headers), @debug)
 		end
 
 		def post_raw(path, body='', headers={})
 			add_standard_headers(headers)
+			puts "BlueJay => POST /1#{path} #{headers} BODY: #{body}" if @debug
 			access_token.post("/1#{path}", body, headers)
 		end
 

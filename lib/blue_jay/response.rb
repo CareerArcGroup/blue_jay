@@ -5,8 +5,8 @@ module BlueJay
 		RATE_LIMIT_REMAINING_HEADER = "X-RateLimit-Remaining"
 		RATE_LIMIT_RESET_HEADER = "X-RateLimit-Reset"
 
-		def initialize(response)
-			 parse_response(response)
+		def initialize(response, debug = false)
+			 parse_response(response, debug)
 		end
 
 		def successful?; @success	end
@@ -19,10 +19,12 @@ module BlueJay
 
 		private
 
-		def parse_response(response)
+		def parse_response(response, debug)
 			@success = false
 			@data = nil
 			@error = nil
+
+			puts "BlueJay => #{response.inspect}" if debug
 
 			# handle the case of the empty or missing response...
 			return if response.nil? || !response.kind_of?(Net::HTTPResponse)
@@ -41,8 +43,8 @@ module BlueJay
 
 				# errors can be detected by the status code (not Success) or
 				# by the presence of an "error" object in the de-serialized response...
-				@success = (response.kind_of?(Net::HTTPSuccess) && !@data.error.present?)
-				@error = @data.error if @data.error.present?
+				@success = (response.kind_of?(Net::HTTPSuccess) && !@data.respond_to?(:error))
+				@error = @data.error if @data.respond_to?(:error)
 
 			rescue JSON::ParserError => e
 				# if we can't parse the response, return
