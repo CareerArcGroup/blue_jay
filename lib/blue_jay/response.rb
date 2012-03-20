@@ -11,6 +11,7 @@ module BlueJay
 
 		def successful?; @success	end
 		def data;	@data	end
+		def error; @error end
 		def status; @status	end
 		def rate_limited?; @rate_limit_remaining == 0 end
 		def rate_limit; @rate_limit end
