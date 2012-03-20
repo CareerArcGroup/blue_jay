@@ -115,6 +115,14 @@ module BlueJay
 			get("/followers/ids.json#{options_to_args(options.merge(:user_id => user_id))}")
 		end
 
+		# Test for the existence of friendship between two users. Will return true if user_a follows user_b,
+		# otherwise will return false. Authentication is required if either user A or user B are protected.
+		# Additionally the authenticating user must be a follower of the protected user.
+		# Options: cursor
+		def follower_ids_by_screen_name(screen_name, options={})
+			get("/followers/ids.json#{options_to_args(options.merge(:screen_name => screen_name))}")
+		end
+
 
 		# ============================================================================
 		# Status Methods - These act on Tweets
