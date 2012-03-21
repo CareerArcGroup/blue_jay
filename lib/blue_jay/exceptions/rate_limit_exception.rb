@@ -1,0 +1,3 @@
+
+class RateLimitException < Exception
+end
