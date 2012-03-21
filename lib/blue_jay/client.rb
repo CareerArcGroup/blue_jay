@@ -180,7 +180,7 @@ module BlueJay
 		end
 
 		def get(path, headers={})
-			BlueJay::Response.new(get_raw(path, headers), @debug)
+			BlueJay::Response.new(get_raw(path, headers), :debug => @debug)
 		end
 
 		def get_raw(path, headers={})
@@ -190,7 +190,7 @@ module BlueJay
 		end
 
 		def post(path, body='', headers={})
-			BlueJay::Response.new(post_raw(path,body,headers), @debug)
+			BlueJay::Response.new(post_raw(path,body,headers), :debug => @debug)
 		end
 
 		def post_raw(path, body='', headers={})
