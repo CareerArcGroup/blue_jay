@@ -71,6 +71,19 @@ module BlueJay
 			post('/account/update_profile.json', options)
 		end
 
+		# Updates the authenticating user's profile image. Note that this method
+		# expects raw multipart data, not a URL to an image.
+		def update_profile_image(image)
+			post('/account/update_profile_image.json', :image => image)
+		end
+
+		# Updates the authenticating user's profile background image. Note that
+		# this method expects raw multipart data, not a URL to an image.
+		def update_profile_background_image(image)
+			post('/account/update_profile_background_image.json', :image => image)
+		end
+
+		alias :info :account_info
 
 		# ============================================================================
 		# User Methods - These act on specified users
@@ -124,6 +137,13 @@ module BlueJay
 			get("/followers/ids.json#{options_to_args(options.merge(:screen_name => screen_name))}")
 		end
 
+		# Returns detailed information about the relationship between two users.
+		def get_friendship(a, b)
+			get("/friendships/show.json?source_screen_name=#{a}&target_screen_name=#{b}")
+		end
+
+		alias :friend :add_friend_by_screen_name
+		alias :unfriend :un_friend_by_screen_name
 
 		# ============================================================================
 		# Status Methods - These act on Tweets
@@ -160,6 +180,9 @@ module BlueJay
 			get("/statuses/user_timeline.json#{options_to_args(options.merge(:user_id => user_id))}")
 		end
 
+		alias :update :tweet
+		alias :status_destroy :un_tweet
+		alias :user_timeline :recent_tweets
 
 		# ============================================================================
 		# Private Methods
