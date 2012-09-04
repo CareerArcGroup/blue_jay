@@ -23,6 +23,11 @@ module BlueJay
 		def rate_limit_remaining; @rate_limit_remaining end
 		def rate_limit_reset_time; @rate_limit_reset_time end
 
+		def method_missing(method, *args, &block)
+			super unless @data.respond_to?(method)
+			@data.send(method, *args)
+		end
+
 		private
 
 		def parse_response(response)

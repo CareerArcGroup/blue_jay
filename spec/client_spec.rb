@@ -41,6 +41,12 @@ describe Client do
 		@client.connected?.should be true
 	end
 
+	it "returns responses that can be used as a hash" do
+		response = @client.rate_limit_status
+		puts "#{response.inspect}"
+		response["remaining_hits"].nil?.should be false
+	end
+
 	context "with valid Twitter OAuth credentials" do
 
 		it "is authorized" do
