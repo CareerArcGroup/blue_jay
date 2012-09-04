@@ -43,7 +43,6 @@ describe Client do
 
 	it "returns responses that can be used as a hash" do
 		response = @client.rate_limit_status
-		puts "#{response.inspect}"
 		response["remaining_hits"].nil?.should be false
 	end
 
