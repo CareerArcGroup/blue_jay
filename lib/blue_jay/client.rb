@@ -94,8 +94,8 @@ module BlueJay
 		# describing the failure condition when unsuccessful. If you are already friends with the
 		# user a HTTP 403 may be returned, though for performance reasons you may get a 200 OK
 		# message even if the friendship already exists.
-		def add_friend(friend_id)
-			post("/friendships/create.json", :user_id => friend_id)
+		def add_friend(friend_id, follow=true)
+			post("/friendships/create.json", :user_id => friend_id, :follow => follow)
 		end
 
 		# Allows the authenticating users to follow the user specified in the ID parameter.
@@ -103,8 +103,8 @@ module BlueJay
 		# describing the failure condition when unsuccessful. If you are already friends with the
 		# user a HTTP 403 may be returned, though for performance reasons you may get a 200 OK
 		# message even if the friendship already exists.
-		def add_friend_by_screen_name(screen_name)
-			post("/friendships/create.json", :screen_name => screen_name)
+		def add_friend_by_screen_name(screen_name, follow=true)
+			post("/friendships/create.json", :screen_name => screen_name, :follow => follow)
 		end
 
 		# Allows the authenticating users to un-follow the user specified in the ID parameter.
