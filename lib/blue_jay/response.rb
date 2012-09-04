@@ -16,7 +16,7 @@ module BlueJay
 
 		def successful?; @success	end
 		def data;	@data	end
-		def error; @error end
+		def errors; @errors end
 		def status; @status	end
 		def rate_limited?; @rate_limit_remaining == 0 end
 		def rate_limit; @rate_limit end
@@ -33,7 +33,7 @@ module BlueJay
 		def parse_response(response)
 			@success = false
 			@data = nil
-			@error = nil
+			@errors = nil
 
 			puts "BlueJay => #{response.inspect}" if @debug
 
@@ -49,11 +49,11 @@ module BlueJay
 
 				# try to parse the response as JSON (unless @raw_data)...
 				@data = (@raw_data) ? response.body : JSON.parse(response.body)
+				@errors = @data["errors"] if @data.is_a?(Hash)
 
 				# errors can be detected by the status code (not Success) or
-				# by the presence of an "error" object in the de-serialized response...
-				@success = (response.kind_of?(Net::HTTPSuccess) && !@data.respond_to?(:error))
-				@error = @data.error if @data.respond_to?(:error)
+				# by the presence of an "errors" object in the de-serialized response...
+				@success = (response.kind_of?(Net::HTTPSuccess) && @errors.nil?)
 
 			rescue JSON::ParserError => e
 				# if we can't parse the response, return
@@ -61,7 +61,7 @@ module BlueJay
 				# about the response in a well structured manner...
 				@data = response.body
 				@success = false
-				@error = e
+				@errors = e
 			end
 		end
 
