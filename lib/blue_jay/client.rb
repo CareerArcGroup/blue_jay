@@ -176,8 +176,8 @@ module BlueJay
 		# to request another user's timeline by using the screen_name or user_id parameter. The other
 		# users timeline will only be visible if they are not protected, or if the authenticating user's
 		# follow request was accepted by the protected user.
-		def recent_tweets(user_id, options={})
-			get("/statuses/user_timeline.json#{options_to_args(options.merge(:user_id => user_id))}")
+		def recent_tweets(options={})
+			get("/statuses/user_timeline.json#{options_to_args(options)}")
 		end
 
 		alias :update :tweet
