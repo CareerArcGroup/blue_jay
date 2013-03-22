@@ -26,7 +26,10 @@ module BlueJay
 		end
 
 		def connected?
-			get_raw("/help/test.json").body == %q("ok")
+			body = get_raw("/help/privacy.json").body
+			data = JSON.parse(body)
+
+			!data["privacy"].nil?
 		end
 
 		def authorized?
@@ -61,7 +64,7 @@ module BlueJay
 		# the rate limit status for the authenticating user is returned. Otherwise, the rate
 		# limit status for the requesting IP address is returned.
 		def rate_limit_status
-			get('/account/rate_limit_status.json')
+			get('/application/rate_limit_status.json')
 		end
 
 		# Sets values that users are able to set under the "Account" tab of their settings
@@ -194,7 +197,7 @@ module BlueJay
 			@consumer ||= OAuth::Consumer.new(
 				@consumer_key,
 				@consumer_secret,
-				{ :site => 'http://api.twitter.com', :request_endpoint => @proxy }
+				{ :site => 'https://api.twitter.com/1.1', :request_endpoint => @proxy }
 			)
 		end
 
@@ -208,8 +211,8 @@ module BlueJay
 
 		def get_raw(path, headers={})
 			add_standard_headers(headers)
-			puts "BlueJay => GET /1#{path} #{headers}" if @debug
-			access_token.get("/1#{path}", headers)
+			puts "BlueJay => GET #{consumer.uri}/#{path} #{headers}" if @debug
+			access_token.get("/#{path}", headers)
 		end
 
 		def post(path, body='', headers={})
@@ -218,8 +221,8 @@ module BlueJay
 
 		def post_raw(path, body='', headers={})
 			add_standard_headers(headers)
-			puts "BlueJay => POST /1#{path} #{headers} BODY: #{body}" if @debug
-			access_token.post("/1#{path}", body, headers)
+			puts "BlueJay => POST #{consumer.uri}/#{path} #{headers} BODY: #{body}" if @debug
+			access_token.post("/#{path}", body, headers)
 		end
 
 		def add_standard_headers(headers={})

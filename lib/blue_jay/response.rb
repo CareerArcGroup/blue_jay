@@ -4,9 +4,9 @@ require 'blue_jay/exceptions/rate_limit_exception'
 module BlueJay
 	class Response
 
-		RATE_LIMIT_HEADER ="X-RateLimit-Limit"
-		RATE_LIMIT_REMAINING_HEADER = "X-RateLimit-Remaining"
-		RATE_LIMIT_RESET_HEADER = "X-RateLimit-Reset"
+		RATE_LIMIT_HEADER ="X-Rate-Limit-Limit"
+		RATE_LIMIT_REMAINING_HEADER = "X-Rate-Limit-Remaining"
+		RATE_LIMIT_RESET_HEADER = "X-Rate-Limit-Reset"
 
 		def initialize(response, options={})
 			@raw_data = options[:raw_data]

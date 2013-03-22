@@ -38,18 +38,18 @@ describe Client do
 	end
 
 	it "get an OK response from the Twitter test endpoint" do
-		@client.connected?.should be true
+		@client.should be_connected
 	end
 
 	it "returns responses that can be used as a hash" do
 		response = @client.rate_limit_status
-		response["remaining_hits"].nil?.should be false
+		response["resources"].should_not be_nil
 	end
 
 	context "with valid Twitter OAuth credentials" do
 
 		it "is authorized" do
-			@client.authorized?.should eq true
+			@client.should be_authorized
 		end
 
 		it "can get user account info" do
@@ -61,7 +61,7 @@ describe Client do
 		it "can check the account rate limit" do
 			response = @client.rate_limit_status
 			response.successful?.should be true
-			response.data["remaining_hits"].nil?.should be false
+			response["resources"].should_not be_nil
 		end
 
 		it "can tweet" do
@@ -114,16 +114,18 @@ describe Client do
 			random = Random.rand(9999)
 
 			response = @client.update_profile(
-				:name => "#{original_name} #{random}",
-				:location => "#{original_location} #{random}",
-				:url => "#{original_url}?#{random}",
+				:name => "Roosifer",
+				:location => "Hades, Netherworld",
+				:url => "http://www.internships.com",
 				:description => "#{original_description} #{random}"
 			)
 
 			response.should be_successful
-			response.data["name"].should == "#{original_name} #{random}"
-			response.data["location"].should == "#{original_location} #{random}"
-			response.data["url"].should == "#{original_url}?#{random}"
+			response.data["name"].should == "Roosifer"
+			response.data["location"].should == "Hades, Netherworld"
+
+			# TODO: for some reason the api is not updating the url
+			response.data["url"].should == "http://www.internships.com"
 			response.data["description"].should == "#{original_description} #{random}"
 
 			# reset the information to how it was before...
@@ -135,11 +137,10 @@ describe Client do
 			)
 
 			reset_response.should be_successful
-
 		end
 
 		it "can retrieve a user's recent tweets" do
-			response = @client.recent_tweets(@friend_id)
+			response = @client.recent_tweets(user_id: @friend_id)
 			response.should be_successful
 			response.data.should be_a_kind_of Array
 			response.data.size.should be > 0
