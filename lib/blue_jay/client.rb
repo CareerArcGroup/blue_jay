@@ -26,10 +26,11 @@ module BlueJay
 		end
 
 		def connected?
-			body = get_raw("/help/privacy.json").body
-			data = JSON.parse(body)
-
-			!data["privacy"].nil?
+			# NOTE: using this endpoint because twitter allows
+			# 180 calls/15 minute window which is much greater
+			# than the 15 calls/15 minutes they allow for other
+			# endpoints.
+			rate_limit_status["resources"].count > 0
 		end
 
 		def authorized?
