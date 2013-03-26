@@ -198,7 +198,7 @@ module BlueJay
 			@consumer ||= OAuth::Consumer.new(
 				@consumer_key,
 				@consumer_secret,
-				{ :site => 'https://api.twitter.com/1.1', :request_endpoint => @proxy }
+				{ :site => 'https://api.twitter.com', :request_endpoint => @proxy }
 			)
 		end
 
@@ -213,7 +213,7 @@ module BlueJay
 		def get_raw(path, headers={})
 			add_standard_headers(headers)
 			puts "BlueJay => GET #{consumer.uri}/#{path} #{headers}" if @debug
-			access_token.get("/#{path}", headers)
+			access_token.get("/1.1#{path}", headers)
 		end
 
 		def post(path, body='', headers={})
@@ -223,7 +223,7 @@ module BlueJay
 		def post_raw(path, body='', headers={})
 			add_standard_headers(headers)
 			puts "BlueJay => POST #{consumer.uri}/#{path} #{headers} BODY: #{body}" if @debug
-			access_token.post("/#{path}", body, headers)
+			access_token.post("/1.1#{path}", body, headers)
 		end
 
 		def add_standard_headers(headers={})
