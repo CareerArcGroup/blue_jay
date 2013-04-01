@@ -49,6 +49,7 @@ module BlueJay
 				# try to parse the response as JSON (unless @raw_data)...
 				@data = (@raw_data) ? response.body : JSON.parse(response.body)
 				@errors = @data["errors"] if @data.is_a?(Hash)
+				@data['error'] = @errors.map { |e| e['message'] }.join(',') if @errors
 
 				# errors can be detected by the status code (not Success) or
 				# by the presence of an "errors" object in the de-serialized response...
