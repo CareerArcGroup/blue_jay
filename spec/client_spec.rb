@@ -157,7 +157,7 @@ describe Client do
 
 	context "with invalid Twitter OAuth credentials" do
 		it "is not authorized" do
-			@unauthorized_client.authorized?.should eq(false)
+			@unauthorized_client.should_not be_authorized
 		end
 	end
 

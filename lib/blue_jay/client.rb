@@ -25,17 +25,17 @@ module BlueJay
 			@access_token
 		end
 
+		# NOTE: the rate_limit_status endpoint allows 180
+		# calls in a 15 minutes window. This is much higher
+		# than calling verify_credentials which only allows
+		# 15 calls.
 		def connected?
-			# NOTE: using this endpoint because twitter allows
-			# 180 calls/15 minute window which is much greater
-			# than the 15 calls/15 minutes they allow for other
-			# endpoints.
-			rate_limit_status["resources"].count > 0
+			authorized?
 		end
 
 		def authorized?
-			response = get_raw("/account/verify_credentials.json")
-			response.class == Net::HTTPOK
+			data = rate_limit_status
+			data && data["resources"] && data["resources"].count > 0
 		end
 
 		def request_token(options={})
