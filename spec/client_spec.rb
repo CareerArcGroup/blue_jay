@@ -161,4 +161,14 @@ describe Client do
 		end
 	end
 
+	describe "#update_profile_banner" do
+		let(:banner) { File.new(File.expand_path("../profile_banner.jpg", __FILE__)) }
+
+		context "with valid image" do
+			it "updates the profile banner image" do
+				response = @client.update_profile_banner(banner)
+				response.status.should be Net::HTTPCreated
+			end
+		end
+	end
 end

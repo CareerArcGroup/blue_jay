@@ -87,6 +87,14 @@ module BlueJay
 			post('/account/update_profile_background_image.json', :image => image)
 		end
 
+		# Updates the authenticating user's profile header image. Not that
+		# this method expects raw multipart data, not a URL to an image.
+		def update_profile_banner(image)
+			encoded = Base64.encode64(File.read(image))
+
+			post('/account/update_profile_banner.json', banner: encoded)
+		end
+
 		alias :info :account_info
 
 		# ============================================================================
