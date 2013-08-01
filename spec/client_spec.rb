@@ -167,8 +167,45 @@ describe Client do
 		context "with valid image" do
 			it "updates the profile banner image" do
 				response = @client.update_profile_banner(banner)
-				response.status.should be Net::HTTPCreated
+        response.status.should be Net::HTTPCreated
+        response.should be_successful
 			end
 		end
-	end
+  end
+
+  describe "#update_profile_background_image" do
+ 		let(:background_image) { File.new(File.expand_path("../Twitter-BG_2_bg-image.jpg", __FILE__)) }
+
+ 		context "with valid image" do
+ 			it "updates the profile background image" do
+        response = @client.update_profile_background_image(background_image)
+        response.status.should be Net::HTTPOK
+        response.should be_successful
+ 			end
+ 		end
+  end
+
+  describe "#update_profile_image" do
+    let(:image) { File.new(File.expand_path("../Twitter-BG_2_bg-image.jpg", __FILE__)) }
+
+    context "with valid image" do
+      it "updates the profile image" do
+        response = @client.update_profile_image(image)
+        response.status.should be Net::HTTPOK
+        response.should be_successful
+      end
+    end
+  end
+
+  describe "#update_profile_colors" do
+    let(:bg_color) { "FF00FF" }
+    context "with valid hex color" do
+      it "updates the profile background color" do
+        response = @client.update_profile_colors({:profile_background_color => bg_color})
+        response.status.should be Net::HTTPOK
+        response.should be_successful
+      end
+    end
+  end
+
 end

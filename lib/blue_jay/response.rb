@@ -14,8 +14,8 @@ module BlueJay
 			parse_response(response)
 		end
 
-		def successful?; @success	end
-		def data;	@data	end
+		def successful?; @success end
+		def data;	@data end
 		def errors; @errors end
 		def status; @status	end
 		def rate_limited?; @rate_limit_remaining == 0 end
@@ -44,10 +44,10 @@ module BlueJay
 			get_rate_limit_info(response)
 			raise RateLimitException if rate_limited?
 
-			begin
+      begin
 
 				# try to parse the response as JSON (unless @raw_data)...
-				@data = (@raw_data) ? response.body : JSON.parse(response.body)
+				@data = (@raw_data || response.body.length < 2) ? response.body : JSON.parse(response.body)
 				@errors = @data["errors"] if @data.is_a?(Hash)
 				@data['error'] ||= @errors.map { |e| e['message'] }.join(',') if @errors
 

@@ -78,13 +78,17 @@ module BlueJay
 		# Updates the authenticating user's profile image. Note that this method
 		# expects raw multipart data, not a URL to an image.
 		def update_profile_image(image)
-			post('/account/update_profile_image.json', :image => image)
+      encoded = Base64.encode64(File.read(image))
+
+			post('/account/update_profile_image.json', :image => encoded)
 		end
 
 		# Updates the authenticating user's profile background image. Note that
 		# this method expects raw multipart data, not a URL to an image.
 		def update_profile_background_image(image)
-			post('/account/update_profile_background_image.json', :image => image)
+      encoded = Base64.encode64(File.read(image))
+
+			post('/account/update_profile_background_image.json', :image => encoded)
 		end
 
 		# Updates the authenticating user's profile header image. Not that
@@ -93,7 +97,14 @@ module BlueJay
 			encoded = Base64.encode64(File.read(image))
 
 			post('/account/update_profile_banner.json', banner: encoded)
-		end
+    end
+
+    # colors hash must contain at least one or more of the following keys
+    # :profile_background_color, :profile_text_color, :profile_link_color, :profile_sidebar_fill_color, :profile_sidebar_border_color
+    # returns extended user info object.
+    def update_profile_colors(colors)
+      post('/account/update_profile_colors.json', colors)
+    end
 
 		alias :info :account_info
 
