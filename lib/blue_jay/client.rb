@@ -239,6 +239,7 @@ module BlueJay
     end
 
     alias :update :tweet
+    alias :update_with_media :tweet_with_media
     alias :status_destroy :un_tweet
     alias :user_timeline :recent_tweets
 
