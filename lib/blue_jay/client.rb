@@ -202,12 +202,12 @@ module BlueJay
       # See - https://dev.twitter.com/docs/api/1.1/post/statuses/update_with_media
       #     - https://dev.twitter.com/docs/uploading-media
       # for more details about the differences in this and other endpoints.
-      client = ::Twitter::REST::Client.new do |config|
-        config.consumer_key = @consumer_key
-        config.consumer_secret = @consumer_secret
-        config.access_token = @token
-        config.access_token_secret = @secret
-      end
+      client = ::Twitter::Client.new(
+        :consumer_key => @consumer_key,
+        :consumer_secret => @consumer_secret,
+        :oauth_token => @token,
+        :oauth_token_secret => @secret
+      )
 
       result = client.post("/1.1/statuses/update_with_media.json", options.merge(:status => message, :'media[]' => image))
 
