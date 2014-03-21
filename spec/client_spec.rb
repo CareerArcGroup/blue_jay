@@ -70,6 +70,14 @@ describe Client do
 		  response.data["id"].nil?.should be false
 		end
 
+		it "can tweet with media" do
+			banner = File.new(File.expand_path("../profile_banner.jpg", __FILE__))
+			response = @client.tweet_with_media("Hello world from dimension #{rand(9999) + 1}", banner)
+
+			response.status.should be Net::HTTPCreated
+			response.should be_successful
+		end
+
 		it "can un-tweet" do
 			account_info = @client.account_info.data
 			last_tweet_id = account_info["status"]["id"]
