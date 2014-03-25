@@ -78,6 +78,16 @@ describe Client do
 			response.should be_successful
 		end
 
+		it "can tweet with media from remote url" do
+			require 'open-uri'
+			url = "http://dev.tweetmyjobs.com.s3.amazonaws.com/social_media_profiles/218/twitter_images/7395635.jpg"
+			media = open(url)
+			response = @client.tweet_with_media("Media with remote url #{rand(9999) + 1}", media)
+
+			response.status.should be Net::HTTPCreated
+			response.should be_successful
+		end
+
 		it "can un-tweet" do
 			account_info = @client.account_info.data
 			last_tweet_id = account_info["status"]["id"]
