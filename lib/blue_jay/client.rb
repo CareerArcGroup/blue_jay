@@ -88,8 +88,8 @@ module BlueJay
     	options.select {|k,v| CONSUMER_OPTIONS.include? k}
     end
 
-    def get(path, headers={})
-      build_response get_raw(path, headers)
+    def get(path)
+      build_response get_raw(path)
     end
 
     def get_raw(path, headers={})
@@ -98,7 +98,7 @@ module BlueJay
       access_token.get("/#{path_prefix}#{path}", headers)
     end
 
-    def post(path, body='', headers={})
+    def post(path, body='')
       build_response post_raw(path, body, headers)
     end
 

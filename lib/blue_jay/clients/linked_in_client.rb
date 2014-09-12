@@ -21,8 +21,7 @@ module BlueJay
     end
 
     def authorized?
-      data = rate_limit_status
-      data && data["resources"] && data["resources"].count > 0
+      account_info.successful?
     end
 
     # ============================================================================
@@ -50,16 +49,20 @@ module BlueJay
     # user if authentication was successful; returns a 401 status code and an error
     # message if not. Use this method to test if supplied user credentials are valid.
     def account_info
-      get('/people/~')
+      get('/people/~?format=json')
     end
 
-    # Returns the remaining number of API requests available to the requesting user
-    # before the API limit is reached for the current hour. Calls to rate_limit_status
-    # do not count against the rate limit. If authentication credentials are provided,
-    # the rate limit status for the authenticating user is returned. Otherwise, the rate
-    # limit status for the requesting IP address is returned.
-    def rate_limit_status
-      get('/application/rate_limit_status.json')
+    protected
+
+    def add_standard_headers(headers={})
+      headers.merge!(
+        "Content-Type" => "application/json",
+        "x-li-format" => "json"
+      )
+    end
+
+    def response_parser
+      Response::LinkedInParser
     end
 
   end
