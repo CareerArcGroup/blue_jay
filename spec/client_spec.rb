@@ -28,12 +28,12 @@ describe Client do
 		# and pass them in as options to the client...
 		credentials_hash = @config["credentials"].inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
 
-		@client = Client.new(credentials_hash)
+		@client = TwitterClient.new(credentials_hash)
 
 		# and create some clients that will misbehave...
 		# like this one, which will not be able to connect to Twitter (unless you proxy it)
-		@disconnected_client = Client.new(credentials_hash.merge(:proxy => 'localhost'))
-		@unauthorized_client = Client.new
+		@disconnected_client = TwitterClient.new(credentials_hash.merge(:proxy => 'localhost'))
+		@unauthorized_client = TwitterClient.new
 
 	end
 

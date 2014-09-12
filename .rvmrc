@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ruby_string="1.9.2"
+ruby_string="1.9.2-p290"
 gem_set="blue_jay"
 
 

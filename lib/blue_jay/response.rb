@@ -4,24 +4,47 @@ require 'blue_jay/exceptions/rate_limit_exception'
 module BlueJay
 	class Response
 
-		RATE_LIMIT_HEADER ="X-Rate-Limit-Limit"
-		RATE_LIMIT_REMAINING_HEADER = "X-Rate-Limit-Remaining"
-		RATE_LIMIT_RESET_HEADER = "X-Rate-Limit-Reset"
-
-		def initialize(response, options={})
-			@raw_data = options[:raw_data]
-			@debug = options[:debug]
+		def initialize(response, parser, options={})
+			@parser = parser	
+			@options = options	
+			
 			parse_response(response)
+
+			raise RateLimitException if rate_limited?
 		end
 
-		def successful?; @success end
-		def data;	@data end
-		def errors; @errors end
-		def status; @status	end
-		def rate_limited?; @rate_limit_remaining == 0 end
-		def rate_limit; @rate_limit end
-		def rate_limit_remaining; @rate_limit_remaining end
-		def rate_limit_reset_time; @rate_limit_reset_time end
+		# ============================================================================
+    # Accessors and Options
+    # ============================================================================
+
+    def successful?; @successful end
+    def successful=(val);	@successful=val end
+    def data;	@data end
+    def data=(val); @data=val end
+    def errors; @errors end
+    def errors=(val); @errors=val end
+    def status; @status end
+    def status=(val); @status=val end
+    def rate_limited?; @rate_limited end
+    def rate_limited=(val); @rate_limited=val end
+    def rate_limit; @rate_limit end
+    def rate_limit=(val); @rate_limit=val end
+    def rate_limit_remaining; @rate_limit_remaining end
+    def rate_limit_remaining=(val); @rate_limit_remaining=val end
+    def rate_limit_reset_time; @rate_limit_reset_time end
+    def rate_limit_reset_time=(val); @rate_limit_reset_time=val end
+
+    def raw_data?
+    	options[:raw_data]
+    end
+
+    def debug?
+    	true #options[:debug]
+    end
+
+    # ============================================================================
+    # Misc and Private Methods
+    # ============================================================================
 
 		def method_missing(method, *args, &block)
 			@data.send(method, *args)
@@ -30,47 +53,13 @@ module BlueJay
 		private
 
 		def parse_response(response)
-			@success = false
-			@data = nil
-			@errors = nil
-
-			puts "BlueJay => #{response.inspect}" if @debug
-
-			# handle the case of the empty or missing response...
-			return if response.nil? || !response.kind_of?(Net::HTTPResponse)
-
-			@status = response.class
-
-			get_rate_limit_info(response)
-			raise RateLimitException if rate_limited?
-
-      begin
-
-				# try to parse the response as JSON (unless @raw_data)...
-				@data = (@raw_data || response.body.length < 2) ? response.body : JSON.parse(response.body)
-				@errors = @data["errors"] if @data.is_a?(Hash)
-				@data['error'] ||= @errors.map { |e| e['message'] }.join(',') if @errors
-
-				# errors can be detected by the status code (not Success) or
-				# by the presence of an "errors" object in the de-serialized response...
-				@success = (response.kind_of?(Net::HTTPSuccess) && @errors.nil?)
-
-			rescue JSON::ParserError => e
-				# if we can't parse the response, return
-				# a json response anyway that gives us information
-				# about the response in a well structured manner...
-				@data = response.body
-				@success = false
-				@errors = e
-			end
+			@parser.parse_response(self, response)
+			puts "BlueJay => #{response.inspect}" if debug?
+			puts "  #{status}: #{errors.inspect}\n\t#{response.body}" if debug? && !successful?
 		end
 
-		def get_rate_limit_info(response)
-			reset_time_ticks = response[RATE_LIMIT_RESET_HEADER]
-
-			@rate_limit = response[RATE_LIMIT_HEADER]
-			@rate_limit_remaining = response[RATE_LIMIT_REMAINING_HEADER]
-			@rate_limit_reset_time = (reset_time_ticks) ? Time.at(reset_time_ticks.to_i) : nil
+		def options
+			@options
 		end
 
 	end
