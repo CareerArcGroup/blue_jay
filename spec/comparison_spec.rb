@@ -29,7 +29,7 @@ describe BlueJay do
 		# and pass them in as options to the client...
 		credentials_hash = @config["credentials"].inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
 
-		@client = Client.new(credentials_hash)
+		@client = TwitterClient.new(credentials_hash)
 		@old_client = TwitterOAuth::Client.new(credentials_hash)
 
 	end
@@ -38,11 +38,11 @@ describe BlueJay do
 
 		context "with valid Twitter OAuth credentials" do
 
-			it "matches the 'authorized?' method" do
-				new_result = @client.authorized?
-				old_result = @old_client.authorized?
-				new_result.should == old_result
-			end
+			# it "matches the 'authorized?' method" do
+			# 	new_result = @client.authorized?
+			# 	old_result = @old_client.authorized?
+			# 	new_result.should eql old_result
+			# end
 
 			it "matches the 'info' method" do
 				new_result = @client.account_info
