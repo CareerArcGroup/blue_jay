@@ -30,24 +30,17 @@ module BlueJay
 
     # Updates the authenticating user's status, also known as sharing.
     # Options:
-    #   comment               Text of share. Share must contain comment and/or (title and submittent_url). Max length 700 bytes
-    #   title                 Title of share. Share must contain comment and/or (title and submittent_url). Max length 200 bytes
-    #   description           Description of share. Max length 256 bytes
-    #   submitted_url         URL for shared content. Invalid without title
-    #   submitted_image_url   URL for image of shared content. Invalid without title and submitted_url
-    #   visibility            One of :anyone (all members) or :connections_only
+    #   comment                 Text of share. Share must contain comment and/or (title and submittent_url). Max length 700 bytes
+    #   content                 Parent container for the following options
+    #     title                 Title of share. Share must contain comment and/or (title and submittent_url). Max length 200 bytes
+    #     description           Description of share. Max length 256 bytes
+    #     submitted_url         URL for shared content. Invalid without title
+    #     submitted_image_url   URL for image of shared content. Invalid without title and submitted_url
+    #   visibility              Parent container for visibility code
+    #     code                  One of 'anyone' (all members) or 'connections-only'
     #
     def share(options={})
-      post('/people/~/shares', {
-        comment: options[:comment],
-        content: {
-          title: options[:title],
-          description: options[:description],
-          'submitted-url': options[:submitted_url],
-          'submitted-image-url': options[:submitted_image_url],
-        },
-        visibility: { code: options[:visibility] }
-      })
+      post('/people/~/shares', options)
     end
 
     # ============================================================================
