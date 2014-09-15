@@ -39,7 +39,7 @@ module BlueJay
     end
 
     def debug?
-    	true #options[:debug]
+    	options[:debug]
     end
 
     # ============================================================================
