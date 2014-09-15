@@ -50,8 +50,9 @@ module BlueJay
     # Returns an HTTP 200 OK response code and a representation of the requesting
     # user if authentication was successful; returns a 401 status code and an error
     # message if not. Use this method to test if supplied user credentials are valid.
-    def account_info
-      get('/people/~')
+    def account_info(*fields)
+      field_selector = (fields != nil && fields.any?) ? ":(#{fields.join(',')})" : ''
+      get("/people/~#{field_selector}")
     end
 
     protected
