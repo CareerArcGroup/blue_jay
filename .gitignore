@@ -1,3 +1,4 @@
 /Gemfile.lock
+/*.gem
 /spec/spec_config.yml
 /.idea/**
