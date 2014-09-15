@@ -38,7 +38,16 @@ module BlueJay
     #   visibility            One of :anyone (all members) or :connections_only
     #
     def share(options={})
-      post('/people/~/shares', options)
+      post('/people/~/shares', {
+        comment: options[:comment],
+        content: {
+          title: options[:title],
+          description: options[:description],
+          'submitted-url': options[:submitted_url],
+          'submitted-image-url': options[:submitted_image_url],
+        },
+        visibility: { code: options[:visibility] }
+      })
     end
 
     # ============================================================================
@@ -49,20 +58,26 @@ module BlueJay
     # user if authentication was successful; returns a 401 status code and an error
     # message if not. Use this method to test if supplied user credentials are valid.
     def account_info
-      get('/people/~?format=json')
+      get('/people/~')
     end
 
     protected
 
     def add_standard_headers(headers={})
       headers.merge!(
-        "Content-Type" => "application/json",
-        "x-li-format" => "json"
-      )
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json',
+        'x-li-format' => 'json'
+        )
+      super
+    end
+
+    def transform_body(body)
+      JSON.unparse(body)
     end
 
     def response_parser
-      Response::LinkedInParser
+      BlueJay::LinkedInParser
     end
 
   end

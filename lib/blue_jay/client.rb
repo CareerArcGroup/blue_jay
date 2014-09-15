@@ -94,18 +94,18 @@ module BlueJay
 
     def get_raw(path, headers={})
       add_standard_headers(headers)
-      puts "BlueJay => GET #{consumer.uri}/#{path} #{headers}" if debug?
+      puts "BlueJay => GET #{consumer.uri}/#{path_prefix}#{path} #{headers}" if debug?
       access_token.get("/#{path_prefix}#{path}", headers)
     end
 
     def post(path, body='')
-      build_response post_raw(path, body, headers)
+      build_response post_raw(path, body)
     end
 
     def post_raw(path, body='', headers={})
       add_standard_headers(headers)
-      puts "BlueJay => POST #{consumer.uri}/#{path} #{headers} BODY: #{body}" if debug?
-      access_token.post("/#{path_prefix}#{path}", body, headers)
+      puts "BlueJay => POST #{consumer.uri}/#{path_prefix}#{path} #{headers} BODY: #{transform_body(body)}" if debug?
+      access_token.post("/#{path_prefix}#{path}", transform_body(body), headers)
     end
 
     def add_standard_headers(headers={})
@@ -115,6 +115,10 @@ module BlueJay
     def options_to_args(options={})
       return "" if options.nil? || options.length == 0
       "?" + options.map{|k,v| "#{k}=#{v}"}.join('&')
+    end
+
+    def transform_body(body)
+      body
     end
 
     def response_parser

@@ -226,7 +226,7 @@ module BlueJay
     protected
 
     def response_parser
-      Response::TwitterParser
+      BlueJay::TwitterParser
     end
 
   end
