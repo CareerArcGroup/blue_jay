@@ -2,7 +2,7 @@
 require 'twitter'
 
 module BlueJay
-  class TwitterClient < Client
+  class TwitterClient < OAuthClient
 
     # ============================================================================
     # Client Initializers and Public Methods
@@ -11,7 +11,7 @@ module BlueJay
     def initialize(options={})
       options[:site] ||= 'https://api.twitter.com'
       options[:authorize_path] ||= '/oauth/authenticate'
-      options[:path_prefix] ||= '1.1'
+      options[:path_prefix] ||= '/1.1'
       
       super(options)
     end

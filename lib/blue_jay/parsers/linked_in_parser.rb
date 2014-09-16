@@ -14,7 +14,7 @@ module BlueJay
 
 				# try to parse the response as JSON (unless @raw_data)...
 				response.data = (response.raw_data? || data.body.length < 2) ? data.body : JSON.parse(data.body)
-				response.errors = response.data if response.data.is_a?(Hash)
+				response.errors = response.data if response.data.is_a?(Hash) && response.data['error-code'] != nil
 				
 				# errors can be detected by the status code (not Success) or
 				# by the presence of an "errors" object in the de-serialized response...

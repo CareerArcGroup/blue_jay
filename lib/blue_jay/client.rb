@@ -46,22 +46,22 @@ module BlueJay
 
     protected
 
-    def get(path)
+    def get(path, params={})
       build_response get_raw(path)
     end
 
     def get_raw(path, headers={})
       add_standard_headers(headers)
-      puts "BlueJay => GET #{consumer.uri}/#{path_prefix}#{path} #{headers}" if debug?
-      get_core("/#{path_prefix}#{path}", headers)
+      puts "BlueJay => GET #{site}#{path_prefix}#{path} #{headers}" if debug?
+      get_core("#{path_prefix}#{path}", headers)
     end
 
     def get_core(path, headers={})
       uri = URI.join(site, path)
-      request = Net::HTTP::Get.new(uri)
+      request = Net::HTTP::Get.new(uri.to_s)
       headers.each {|key,value| request[key] = value}
 
-      Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http_start(uri) do |http|
         http.request(request)
       end
     end
@@ -72,19 +72,26 @@ module BlueJay
 
     def post_raw(path, body='', headers={})
       add_standard_headers(headers)
-      puts "BlueJay => POST #{consumer.uri}/#{path_prefix}#{path} #{headers} BODY: #{transform_body(body)}" if debug?
-      post_core("/#{path_prefix}#{path}", transform_body(body), headers)
+      puts "BlueJay => POST #{site}#{path_prefix}#{path} #{headers} BODY: #{transform_body(body)}" if debug?
+      post_core("#{path_prefix}#{path}", transform_body(body), headers)
     end
 
     def post_core(path, body='', headers={})
       uri = URI.join(site, path)
-      request = Net::HTTP::Post.new(uri)
+      request = Net::HTTP::Post.new(uri.to_s)
       headers.each {|key,value| request[key] = value}
       request.body = body
 
-      Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http_start(uri) do |http|
         http.request(request)
       end
+    end
+
+    def http_start(uri, &block)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = (uri.port == 443)
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http.start(&block)
     end
 
     def add_standard_headers(headers={})
