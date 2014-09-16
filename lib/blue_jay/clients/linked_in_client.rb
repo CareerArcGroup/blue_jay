@@ -1,6 +1,6 @@
 
 module BlueJay
-  class LinkedInClient < Client
+  class LinkedInClient < OAuthClient
 
     # ============================================================================
     # Client Initializers and Public Methods
@@ -11,7 +11,7 @@ module BlueJay
       options[:authorize_path] ||= '/uas/oauth/authorize'
       options[:request_token_path] ||= '/uas/oauth/requestToken'
       options[:access_token_path] ||= '/uas/oauth/accessToken'
-      options[:path_prefix] ||= 'v1'
+      options[:path_prefix] ||= '/v1'
       
       super(options)
     end
@@ -47,11 +47,10 @@ module BlueJay
     # Account Methods - These act on the API account
     # ============================================================================
 
-    # Returns an HTTP 200 OK response code and a representation of the requesting
-    # user if authentication was successful; returns a 401 status code and an error
-    # message if not. Use this method to test if supplied user credentials are valid.
-    def account_info
-      get('/people/~')
+    
+    def account_info(*fields)
+      field_selector = (fields != nil && fields.any?) ? ":(#{fields.join(',')})" : ''
+      get("/people/~#{field_selector}")
     end
 
     protected
