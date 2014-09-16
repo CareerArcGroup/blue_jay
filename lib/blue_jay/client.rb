@@ -12,14 +12,6 @@ module BlueJay
       @options = options
     end
 
-    def authorize(token, secret, options={})
-      request_token = OAuth::RequestToken.new(consumer, token, secret)
-      @access_token = request_token.get_access_token(options)
-      @token = @access_token.token
-      @secret = @access_token.secret
-      @access_token
-    end
-
     def connected?
       raise NotImplementedError, 'implemented by subclass'
     end
@@ -28,32 +20,12 @@ module BlueJay
       raise NotImplementedError, 'implemented by subclass'
     end
 
-    def request_token(options={})
-      consumer.get_request_token(options)
-    end
-
-    def authentication_request_token(options={})
-      request_token(options)
-    end   
-
     # ============================================================================
     # Accessors and Options
     # ============================================================================
 
-    def consumer_key
-    	options[:consumer_key]
-    end
-
-    def consumer_secret
-    	options[:consumer_secret]
-    end
-
-    def token
-    	@token ||= options[:token]
-    end
-
-    def secret
-    	@secret ||= options[:secret]
+    def site
+      options[:site]
     end
 
     def proxy
@@ -74,20 +46,6 @@ module BlueJay
 
     protected
 
-    CONSUMER_OPTIONS = [:site, :authorize_path, :request_token_path, :access_token_path, :request_endpoint]
-
-    def consumer
-      @consumer ||= OAuth::Consumer.new(consumer_key, consumer_secret, consumer_options)
-    end
-
-    def access_token
-      @access_token ||= OAuth::AccessToken.new(consumer, token, secret)
-    end
-
-    def consumer_options
-    	options.select {|k,v| CONSUMER_OPTIONS.include? k}
-    end
-
     def get(path)
       build_response get_raw(path)
     end
@@ -95,7 +53,17 @@ module BlueJay
     def get_raw(path, headers={})
       add_standard_headers(headers)
       puts "BlueJay => GET #{consumer.uri}/#{path_prefix}#{path} #{headers}" if debug?
-      access_token.get("/#{path_prefix}#{path}", headers)
+      get_core("/#{path_prefix}#{path}", headers)
+    end
+
+    def get_core(path, headers={})
+      uri = URI.join(site, path)
+      request = Net::HTTP::Get.new(uri)
+      headers.each {|key,value| request[key] = value}
+
+      Net::HTTP.start(uri.hostname, uri.port) do |http|
+        http.request(request)
+      end
     end
 
     def post(path, body='')
@@ -105,7 +73,18 @@ module BlueJay
     def post_raw(path, body='', headers={})
       add_standard_headers(headers)
       puts "BlueJay => POST #{consumer.uri}/#{path_prefix}#{path} #{headers} BODY: #{transform_body(body)}" if debug?
-      access_token.post("/#{path_prefix}#{path}", transform_body(body), headers)
+      post_core("/#{path_prefix}#{path}", transform_body(body), headers)
+    end
+
+    def post_core(path, body='', headers={})
+      uri = URI.join(site, path)
+      request = Net::HTTP::Post.new(uri)
+      headers.each {|key,value| request[key] = value}
+      request.body = body
+
+      Net::HTTP.start(uri.hostname, uri.port) do |http|
+        http.request(request)
+      end
     end
 
     def add_standard_headers(headers={})

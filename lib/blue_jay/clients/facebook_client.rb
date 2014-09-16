@@ -8,11 +8,13 @@ module BlueJay
 
     def initialize(options={})
       options[:site] ||= 'https://graph.facebook.com'
-      options[:authorize_path] ||= '/oauth/authorize'
-      options[:request_token_path] ||= '/oauth/request_token'
-      options[:access_token_path] ||= '/oauth/access_token'
+      options[:http_method] ||= :get
       
       super(options)
+    end
+
+    def request_token
+      raise NotImplementedError, 'FacebookClient does not support this method'
     end
 
     def connected?
@@ -21,6 +23,14 @@ module BlueJay
 
     def authorized?
       account_info.successful?
+    end
+
+    # ============================================================================
+    # Account Methods - These act on the API account
+    # ============================================================================
+
+    def account_info()
+      get('/me')
     end
 
     protected
