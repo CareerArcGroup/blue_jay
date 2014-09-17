@@ -1,6 +1,4 @@
 
-require 'twitter'
-
 module BlueJay
   class TwitterClient < OAuthClient
 
@@ -130,7 +128,7 @@ module BlueJay
     # Additionally the authenticating user must be a follower of the protected user.
     # Options: cursor
     def follower_ids(user_id, options={})
-      get("/followers/ids.json#{options_to_args(options.merge(:user_id => user_id))}")
+      get("/followers/ids.json", options.merge(:user_id => user_id))
     end
 
     # Test for the existence of friendship between two users. Will return true if user_a follows user_b,
@@ -138,12 +136,12 @@ module BlueJay
     # Additionally the authenticating user must be a follower of the protected user.
     # Options: cursor
     def follower_ids_by_screen_name(screen_name, options={})
-      get("/followers/ids.json#{options_to_args(options.merge(:screen_name => screen_name))}")
+      get("/followers/ids.json", options.merge(:screen_name => screen_name))
     end
 
     # Returns detailed information about the relationship between two users.
     def get_friendship(a, b)
-      get("/friendships/show.json?source_screen_name=#{a}&target_screen_name=#{b}")
+      get("/friendships/show.json?", source_screen_name: a, target_screen_name: b)
     end
 
     alias :friend :add_friend_by_screen_name
@@ -172,36 +170,7 @@ module BlueJay
 
     # Tweets with a picture :-)
     def tweet_with_media(message, image, options = {})
-      # we are using the official Twitter gem for this endpoint b/c Twitter handles this
-      # endpoint a bit differently than other ones (which this gem takes into account).
-      # first, it does not use all paramters when constructing the oauth signature base
-      # string (it only uses the oauth_ params). We do not control the construction of
-      # the base string in the OAuth gem and I'm not going to take the time to make that
-      # happen now. Also it requires the Content-Type to be multipart/form-data.
-      #
-      # See - https://dev.twitter.com/docs/api/1.1/post/statuses/update_with_media
-      #     - https://dev.twitter.com/docs/uploading-media
-      # for more details about the differences in this and other endpoints.
-      client = ::Twitter::Client.new(
-        :consumer_key => consumer_key,
-        :consumer_secret => consumer_secret,
-        :oauth_token => token,
-        :oauth_token_secret => secret
-      )
-
-      result = client.post("/1.1/statuses/update_with_media.json", options.merge(:status => message, :'media[]' => image))
-
-      # Some shadiness to fake a Net::HTTPResponse object which the BlueJay::Response
-      # is expecting.
-      klass = result.success? ? Net::HTTPCreated : Net::HTTPBadRequest
-      response = klass.new('1.1', result.status, '')
-      response.body = JSON.unparse(result.body)
-
-      def response.body
-        @body
-      end
-
-      build_response response
+      post("/statuses/update_with_media.json", options.merge(:status => message, :'media[]' => image))
     end
 
     # Destroys the status specified by the required ID parameter. The authenticating user must
@@ -215,7 +184,7 @@ module BlueJay
     # users timeline will only be visible if they are not protected, or if the authenticating user's
     # follow request was accepted by the protected user.
     def recent_tweets(options={})
-      get("/statuses/user_timeline.json#{options_to_args(options)}")
+      get("/statuses/user_timeline.json", options)
     end
 
     alias :update :tweet

@@ -47,7 +47,7 @@ module BlueJay
     protected
 
     def get(path, params={})
-      build_response get_raw(path)
+      build_response get_raw(uri_with_query(path,params))
     end
 
     def get_raw(path, headers={})
@@ -98,9 +98,13 @@ module BlueJay
       headers.merge!("User-Agent" => "blue_jay gem v#{BlueJay::VERSION}")
     end
 
-    def options_to_args(options={})
-      return "" if options.nil? || options.length == 0
-      "?" + options.map{|k,v| "#{k}=#{v}"}.join('&')
+    def uri_with_query(url, query={})
+      uri = URI.parse(url)
+      base_query = uri.query != nil ? URI.decode_www_form(uri.query) : []
+      addl_query = Hash[query.map{|k,v| [k.to_s,v]}]
+      new_query = Hash[*base_query.flatten].merge(addl_query)
+      uri.query = URI.encode_www_form(new_query.to_a)
+      uri.to_s
     end
 
     def transform_body(body)

@@ -13,7 +13,6 @@ Gem::Specification.new do |s|
   s.email	= 'sroos@tweetmyjobs.com'
   s.homepage	= 'https://github.com/CareerArcGroup/blue_jay'
 
-  s.add_dependency "twitter", "4.8.1"
   s.add_dependency "json"
   s.add_development_dependency "bundler", "~> 1.1.0"
   s.add_development_dependency 'rspec'

@@ -1,5 +1,6 @@
 
 require 'blue_jay/response'
+require 'net/http/post/multipart'
 
 module BlueJay
   class OAuthClient < Client
@@ -55,6 +56,7 @@ module BlueJay
     protected
 
     CONSUMER_OPTIONS = [:site, :authorize_path, :request_token_path, :access_token_path, :request_endpoint]
+    VALID_MIME_TYPES = 
 
     def consumer
       @consumer ||= OAuth::Consumer.new(consumer_key, consumer_secret, consumer_options)
@@ -73,7 +75,44 @@ module BlueJay
     end
 
     def post_core(path, body='', headers={})
-      access_token.post(path, body, headers)
+      multipart?(body) ? post_multipart(path, body, headers) : access_token.post(path, body, headers)
     end
+
+    def post_multipart(path, body, headers={})
+      uri = URI.join(site, path)
+      params = to_multipart_params(body)
+      request = Net::HTTP::Post::Multipart.new(path, params)
+      headers.each {|key,value| request[key] = value}
+      access_token.sign! request
+      
+      http_start(uri) do |http|
+        http.request(request)
+      end
+    end
+
+    def multipart?(content)
+      content.is_a?(Hash) && content.values.any? {|v| v.respond_to?(:to_io)}
+    end
+
+    def to_multipart_params(content)
+      params = content.map {|k,v| [k, to_multipart_value(v)]}.flatten
+      Hash[*params]
+    end
+
+    def to_multipart_value(value)
+      return value unless value.respond_to?(:to_io)
+      mime_type = case value.path
+      when /\.jpe?g/i
+        'image/jpeg'
+      when /\.gif$/i
+        'image/gif'
+      when /\.png$/i
+        'image/png'
+      else
+        'application/octet-stream'
+      end
+      UploadIO.new(value, mime_type)
+    end
+
   end
 end

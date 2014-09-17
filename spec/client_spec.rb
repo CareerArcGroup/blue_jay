@@ -73,8 +73,6 @@ describe Client do
 		it "can tweet with media" do
 			banner = File.new(File.expand_path("../profile_banner.jpg", __FILE__))
 			response = @client.tweet_with_media("Hello world from dimension #{rand(9999) + 1}", banner)
-
-			response.status.should be Net::HTTPCreated
 			response.should be_successful
 		end
 

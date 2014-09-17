@@ -11,22 +11,32 @@ module BlueJay
       super(options)
     end
 
-    def authorize_url(redirect_uri)
-      "https://www.facebook.com/dialog/oauth?client_id=#{client_id}&redirect_uri=#{CGI.escape(redirect_uri)}"
+    def authorize_url(redirect_uri, options={})
+      uri_with_query("https://www.facebook.com/dialog/oauth", options.merge(
+        client_id: client_id,
+        redirect_uri: redirect_uri
+      ))
     end
 
-    def authorize(code, redirect_uri)
+    def authorize(code, redirect_uri, options={})
       begin
-        response = get_raw("/oauth/access_token?client_id=#{client_id}&redirect_uri=#{CGI.escape(redirect_uri)}&client_secret=#{client_secret}&code=#{code}")
-        response
+        response = get_raw(uri_with_query("/oauth/access_token", options.merge(
+          client_id: client_id,
+          client_secret: client_secret,
+          redirect_uri: redirect_uri,
+          code: code
+        )))
+
         success = response.is_a? Net::HTTPSuccess
+
         if success
           @access_token, expires_in = response.body.split('&').map {|p| p.split('=').last}
           @access_token_expires_at = Time.now + expires_in.to_i
         end
+
         success
-      rescue Exception => ex
-        puts "Exception: #{ex}\n#{ex.backtrace.join("\n")}"; false
+      rescue
+        false
       end
     end
 
@@ -69,7 +79,7 @@ module BlueJay
     protected
 
     def token_get(path)
-      get("#{path}#{path.include?('?') ? '&' : '?'}access_token=#{access_token}")
+      get(path, access_token: access_token)
     end
 
     def response_parser
