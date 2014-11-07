@@ -61,7 +61,7 @@ module BlueJay
     end
 
     def access_token
-      @access_token
+      @access_token ||= options[:access_token] || options[:token]
     end
 
     def access_token_expires_at
@@ -73,13 +73,25 @@ module BlueJay
     # ============================================================================
 
     def account_info()
-      token_get('/me')
+      get('/me')
+    end
+
+    def share(options = {})
+      post('/me/feed', options)
     end
 
     protected
 
-    def token_get(path)
-      get(path, access_token: access_token)
+    def get(path)
+      super(path, access_token: access_token)
+    end
+
+    def post(path, params = {})
+      super(path, params.merge!(access_token: access_token))
+    end
+
+    def transform_body(body)
+      URI.encode_www_form(body)
     end
 
     def response_parser
