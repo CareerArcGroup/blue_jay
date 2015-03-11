@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'yaml'
 include BlueJay
 
-describe Client do
+describe TwitterClient do
 
 	before do
 
@@ -21,12 +21,12 @@ describe Client do
 			File.read(config_file_path)
 		)
 
-		@friend_screen_name = @config["settings"]["friend_screen_name"]
-		@friend_id = @config["settings"]["friend_id"]
+		@friend_screen_name = @config["twitter"]["settings"]["friend_screen_name"]
+		@friend_id = @config["twitter"]["settings"]["friend_id"]
 
 		# map the credentials to a symbol-keyed hash
 		# and pass them in as options to the client...
-		credentials_hash = @config["credentials"].inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
+		credentials_hash = @config["twitter"]["client"].inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
 
 		@client = TwitterClient.new(credentials_hash)
 
@@ -71,7 +71,7 @@ describe Client do
 		end
 
 		it "can tweet with media" do
-			banner = File.new(File.expand_path("../profile_banner.jpg", __FILE__))
+			banner = File.new(File.expand_path("../assets/profile_banner.jpg", __FILE__))
 			response = @client.tweet_with_media("Hello world from dimension #{rand(9999) + 1}", banner)
 			response.should be_successful
 		end
@@ -81,8 +81,6 @@ describe Client do
 			url = "http://dev.tweetmyjobs.com.s3.amazonaws.com/social_media_profiles/218/twitter_images/7395635.jpg"
 			media = open(url)
 			response = @client.tweet_with_media("Media with remote url #{rand(9999) + 1}", media)
-
-			response.status.should be Net::HTTPCreated
 			response.should be_successful
 		end
 
@@ -178,7 +176,7 @@ describe Client do
 	end
 
 	describe "#update_profile_banner" do
-		let(:banner) { File.new(File.expand_path("../profile_banner.jpg", __FILE__)) }
+		let(:banner) { File.new(File.expand_path("../assets/profile_banner.jpg", __FILE__)) }
 
 		context "with valid image" do
 			it "updates the profile banner image" do
@@ -190,7 +188,7 @@ describe Client do
   end
 
   describe "#update_profile_background_image" do
- 		let(:background_image) { File.new(File.expand_path("../Twitter-BG_2_bg-image.jpg", __FILE__)) }
+ 		let(:background_image) { File.new(File.expand_path("../assets/Twitter-BG_2_bg-image.jpg", __FILE__)) }
 
  		context "with valid image" do
  			it "updates the profile background image" do
@@ -202,7 +200,7 @@ describe Client do
   end
 
   describe "#update_profile_image" do
-    let(:image) { File.new(File.expand_path("../Twitter-BG_2_bg-image.jpg", __FILE__)) }
+    let(:image) { File.new(File.expand_path("../assets/Twitter-BG_2_bg-image.jpg", __FILE__)) }
 
     context "with valid image" do
       it "updates the profile image" do
@@ -217,7 +215,7 @@ describe Client do
     let(:bg_color) { "FF00FF" }
     context "with valid hex color" do
       it "updates the profile background color" do
-        response = @client.update_profile_colors({:profile_background_color => bg_color})
+        response = @client.update_profile({:profile_background_color => bg_color})
         response.status.should be Net::HTTPOK
         response.should be_successful
       end

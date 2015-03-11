@@ -10,7 +10,7 @@ module BlueJay
       options[:site] ||= 'https://api.twitter.com'
       options[:authorize_path] ||= '/oauth/authenticate'
       options[:path_prefix] ||= '/1.1'
-      
+
       super(options)
     end
 
@@ -78,14 +78,8 @@ module BlueJay
       post('/account/update_profile_banner.json', banner: encoded)
     end
 
-    # colors hash must contain at least one or more of the following keys
-    # :profile_background_color, :profile_text_color, :profile_link_color, :profile_sidebar_fill_color, :profile_sidebar_border_color
-    # returns extended user info object.
-    def update_profile_colors(colors)
-      post('/account/update_profile_colors.json', colors)
-    end
-
-    alias :info :account_info
+    alias_method :info, :account_info
+    alias_method :update_profile_colors, :update_profile
 
     # ============================================================================
     # User Methods - These act on specified users

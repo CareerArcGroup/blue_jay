@@ -7,12 +7,13 @@ module BlueJay
     # ============================================================================
 
     def initialize(options={})
-      options[:site] ||= 'https://graph.facebook.com'      
+      options[:site] ||= 'https://graph.facebook.com'
+      options[:path_prefix] ||= '/v2.0'
       super(options)
     end
 
     def authorize_url(redirect_uri, options={})
-      uri_with_query("https://www.facebook.com/dialog/oauth", options.merge(
+      uri_with_query("https://www.facebook.com/v2.0/dialog/oauth", options.merge(
         client_id: client_id,
         redirect_uri: redirect_uri
       ))

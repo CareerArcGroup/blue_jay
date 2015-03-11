@@ -1,9 +1,21 @@
+
 ## sroos_interns
-credentials:
-  consumer_key:    OAk1jpqljfvceUhWn1KBcQ
-  consumer_secret: VFrbCrmBUjiOSFmo2pGFaemu90BfL0lBilSoagv3A
-  token:           191654181-bDKADVbv6nhJf4jeZZysZnVDsMHvg7GaNKN32iWw
-  secret:          VG0dZJPgb7uptd29p3u6pFTAydgAzmLUpMDiHC3aI
-settings:
-  friend_id:          19729328
-  friend_screen_name: ramangulati
+twitter:
+  client:
+    consumer_key:    OAk1jpqljfvceUhWn1KBcQ
+    consumer_secret: VFrbCrmBUjiOSFmo2pGFaemu90BfL0lBilSoagv3A
+    token:           191654181-bDKADVbv6nhJf4jeZZysZnVDsMHvg7GaNKN32iWw
+    secret:          VG0dZJPgb7uptd29p3u6pFTAydgAzmLUpMDiHC3aI
+  settings:
+    friend_id:          19729328
+    friend_screen_name: ramangulati
+
+facebook:
+  client:
+    consumer_key:    143311882376543
+    consumer_secret: cf3b716940572895fe54fc4546c940ca
+    token:           CAACCV2XXVV8BAPOZAFU7V4L9g8uPZB3yArRM8GDZAD8E1dfDUYlu6ZBLXiZCY10jyO7DpkZAeZBrwNQsibGqaM7xyqUVR8zxM7YnzwH7uvPQaZC4tLWXMkAn7Rtqj0lpa3ElwdZB0XEjQhlAYFU7JbZAZBsrXaak0VwZC4BM59wbKGPSish7SoK8KtBDzunRp2AbH8tsZBZCkQjS3ovvZCvVdfHP38k
+    secret:
+    debug:           true
+  settings:
+    friend_id:       1200016
