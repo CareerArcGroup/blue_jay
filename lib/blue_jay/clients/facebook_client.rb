@@ -41,6 +41,28 @@ module BlueJay
       end
     end
 
+    def exchange_access_token(options={})
+      begin
+        response = get_raw(uri_with_query("/oauth/access_token", options.merge(
+          client_id: client_id,
+          client_secret: client_secret,
+          grant_type: "fb_exchange_token",
+          fb_exchange_token: access_token
+        )))
+
+        success = response.is_a? Net::HTTPSuccess
+
+        if success
+          @access_token, expires_in = response.body.split('&').map {|p| p.split('=').last}
+          @access_token_expires_at = Time.now + expires_in.to_i
+        end
+
+        success
+      rescue
+        false
+      end
+    end
+
     def connected?
       authorized?
     end
