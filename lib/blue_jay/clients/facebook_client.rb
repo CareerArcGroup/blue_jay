@@ -71,6 +71,10 @@ module BlueJay
       account_info.successful?
     end
 
+    def graph_query(path, query={})
+      get(path, query)
+    end
+
     # ============================================================================
     # Accessors and Options
     # ============================================================================
@@ -83,8 +87,12 @@ module BlueJay
       options[:client_secret]
     end
 
+    def app_access_token
+      [client_id, client_secret].join("|") if options[:app_client]
+    end
+
     def access_token
-      @access_token ||= options[:access_token] || options[:token]
+      @access_token ||= options[:access_token] || options[:token] || app_access_token
     end
 
     def access_token_expires_at
@@ -105,12 +113,12 @@ module BlueJay
 
     protected
 
-    def get(path)
-      super(path, access_token: access_token)
+    def get(path, params={})
+      super(path, params.merge(access_token: access_token))
     end
 
-    def post(path, params = {})
-      super(path, params.merge!(access_token: access_token))
+    def post(path, params={})
+      super(path, params.merge(access_token: access_token))
     end
 
     def transform_body(body)
