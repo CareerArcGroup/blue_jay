@@ -99,12 +99,7 @@ module BlueJay
       end
 
       response = http.start(&block)
-
-      if debug?
-        puts "BlueJay <= #{response.inspect}"
-        puts "  #{response.body}"
-      end
-
+      build_response(response, :raw_data => true) if debug? # will cause debug output
       response
     end
 

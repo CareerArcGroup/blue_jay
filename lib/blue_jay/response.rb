@@ -7,6 +7,7 @@ module BlueJay
     def initialize(response, parser, options={})
       @parser = parser
       @options = options
+      @raw_response = response
 
       parse_response(response)
 
@@ -38,6 +39,14 @@ module BlueJay
       options[:raw_data]
     end
 
+    def raw_response
+      @raw_response
+    end
+
+    def headers
+      raw_response.header
+    end
+
     def debug?
       options[:debug]
     end
@@ -50,17 +59,31 @@ module BlueJay
       @data.send(method, *args)
     end
 
+    def to_s
+      body_str = raw_response.body
+      header_list = []
+
+      headers.each do |k, v|
+        header_list << "    #{k}: #{v}"
+      end
+
+      parts = ["BlueJay <= #{raw_response.inspect}"]
+      parts += ["  Headers:", header_list.join("\n")]
+      parts += ["  Body:", body_str]
+      parts += ["  Errors:", errors.inspect] if !successful?
+
+      parts.join("\n") + "\n"
+    end
+
     private
 
     def parse_response(response)
       @parser.parse_response(self, response)
-      puts "BlueJay => #{response.inspect}" if debug?
-      puts "  #{status}: #{errors.inspect}\n\t#{response.body}" if debug? && !successful?
+      puts to_s if debug?
     end
 
     def options
       @options
     end
-
   end
 end
