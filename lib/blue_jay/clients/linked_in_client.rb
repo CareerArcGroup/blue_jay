@@ -12,7 +12,7 @@ module BlueJay
       options[:request_token_path] ||= '/uas/oauth/requestToken'
       options[:access_token_path] ||= '/uas/oauth/accessToken'
       options[:path_prefix] ||= '/v1'
-      
+
       super(options)
     end
 
@@ -47,7 +47,7 @@ module BlueJay
     # Account Methods - These act on the API account
     # ============================================================================
 
-    
+
     def account_info(*fields)
       field_selector = (fields != nil && fields.any?) ? ":(#{fields.join(',')})" : ''
       get("/people/~#{field_selector}")
