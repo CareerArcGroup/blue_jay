@@ -27,26 +27,26 @@ module BlueJay
 
     def authentication_request_token(options={})
       request_token(options)
-    end   
+    end
 
     # ============================================================================
     # Accessors and Options
     # ============================================================================
 
     def consumer_key
-    	options[:consumer_key]
+      options[:consumer_key]
     end
 
     def consumer_secret
-    	options[:consumer_secret]
+      options[:consumer_secret]
     end
 
     def token
-    	@token ||= options[:token]
+      @token ||= options[:token]
     end
 
     def secret
-    	@secret ||= options[:secret]
+      @secret ||= options[:secret]
     end
 
     # ============================================================================
@@ -56,7 +56,6 @@ module BlueJay
     protected
 
     CONSUMER_OPTIONS = [:site, :authorize_path, :request_token_path, :access_token_path, :request_endpoint]
-    VALID_MIME_TYPES = 
 
     def consumer
       @consumer ||= OAuth::Consumer.new(consumer_key, consumer_secret, consumer_options)
@@ -67,7 +66,7 @@ module BlueJay
     end
 
     def consumer_options
-    	options.select {|k,v| CONSUMER_OPTIONS.include? k}
+      options.select {|k,v| CONSUMER_OPTIONS.include? k}
     end
 
     def get_core(path, headers={})
@@ -84,7 +83,7 @@ module BlueJay
       request = Net::HTTP::Post::Multipart.new(path, params)
       headers.each {|key,value| request[key] = value}
       access_token.sign! request
-      
+
       http_start(uri) do |http|
         http.request(request)
       end

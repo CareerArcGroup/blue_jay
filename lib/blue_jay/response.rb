@@ -2,24 +2,24 @@
 require 'blue_jay/exceptions/rate_limit_exception'
 
 module BlueJay
-	class Response
+  class Response
 
-		def initialize(response, parser, options={})
-			@parser = parser	
-			@options = options	
-			
-			parse_response(response)
+    def initialize(response, parser, options={})
+      @parser = parser
+      @options = options
 
-			raise RateLimitException if rate_limited?
-		end
+      parse_response(response)
 
-		# ============================================================================
+      raise RateLimitException if rate_limited?
+    end
+
+    # ============================================================================
     # Accessors and Options
     # ============================================================================
 
     def successful?; @successful end
-    def successful=(val);	@successful=val end
-    def data;	@data end
+    def successful=(val); @successful=val end
+    def data; @data end
     def data=(val); @data=val end
     def errors; @errors end
     def errors=(val); @errors=val end
@@ -35,32 +35,32 @@ module BlueJay
     def rate_limit_reset_time=(val); @rate_limit_reset_time=val end
 
     def raw_data?
-    	options[:raw_data]
+      options[:raw_data]
     end
 
     def debug?
-    	options[:debug]
+      options[:debug]
     end
 
     # ============================================================================
     # Misc and Private Methods
     # ============================================================================
 
-		def method_missing(method, *args, &block)
-			@data.send(method, *args)
-		end
+    def method_missing(method, *args, &block)
+      @data.send(method, *args)
+    end
 
-		private
+    private
 
-		def parse_response(response)
-			@parser.parse_response(self, response)
-			puts "BlueJay => #{response.inspect}" if debug?
-			puts "  #{status}: #{errors.inspect}\n\t#{response.body}" if debug? && !successful?
-		end
+    def parse_response(response)
+      @parser.parse_response(self, response)
+      puts "BlueJay => #{response.inspect}" if debug?
+      puts "  #{status}: #{errors.inspect}\n\t#{response.body}" if debug? && !successful?
+    end
 
-		def options
-			@options
-		end
+    def options
+      @options
+    end
 
-	end
+  end
 end
