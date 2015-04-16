@@ -2,6 +2,8 @@
 module BlueJay
   class FacebookClient < Client
 
+    LONG_TOKEN_EXPIRES_IN = 5184000   # 60 days
+
     # ============================================================================
     # Client Initializers and Public Methods
     # ============================================================================
@@ -31,7 +33,7 @@ module BlueJay
         success = response.is_a? Net::HTTPSuccess
 
         if success
-          @access_token, expires_in = response.body.split('&').map {|p| p.split('=').last}
+          @access_token = response.body
           @access_token_expires_at = Time.now + expires_in.to_i
         end
 
@@ -54,7 +56,7 @@ module BlueJay
 
         if success
           @access_token, expires_in = response.body.split('&').map {|p| p.split('=').last}
-          @access_token_expires_at = Time.now + expires_in.to_i
+          @access_token_expires_at = Time.now + (expires_in ? expires_in.to_i : LONG_TOKEN_EXPIRES_IN)
         end
 
         success
@@ -73,6 +75,19 @@ module BlueJay
 
     def graph_query(path, query={})
       get(path, query)
+    end
+
+    def debug_token
+      response = get_raw(uri_with_query("/debug_token",
+        input_token: access_token,
+        access_token: [client_id, client_secret].join("|")))
+
+      if response && response.kind_of?(Net::HTTPSuccess)
+        data_wrapper = JSON.parse(response.body)
+        data_wrapper["data"]
+      else
+        puts "BlueJay: Unable to debug token '#{access_token}', API response: #{response.inspect}"
+      end
     end
 
     # ============================================================================

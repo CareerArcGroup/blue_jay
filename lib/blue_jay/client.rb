@@ -91,7 +91,21 @@ module BlueJay
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = (uri.port == 443)
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      http.start(&block)
+
+      if http.use_ssl?
+        # use the system's built-in certificates
+        http.cert_store = OpenSSL::X509::Store.new
+        http.cert_store.set_default_paths
+      end
+
+      response = http.start(&block)
+
+      if debug?
+        puts "BlueJay <= #{response.inspect}"
+        puts "  #{response.body}"
+      end
+
+      response
     end
 
     def add_standard_headers(headers={})
