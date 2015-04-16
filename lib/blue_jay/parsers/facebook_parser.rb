@@ -9,6 +9,8 @@ module BlueJay
       # handle the case of the empty or missing response...
       return if data.nil? || !data.kind_of?(Net::HTTPResponse)
 
+      response.status = data.class
+
       begin
 
         # try to parse the response as JSON (unless @raw_data)...
