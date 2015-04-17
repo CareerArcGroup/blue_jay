@@ -89,7 +89,7 @@ module BlueJay
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = (uri.port == 443)
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      http.set_debug_output($stdout) if debug?
+      http.set_debug_output(logger)
 
       if http.use_ssl?
         # use the system's built-in certificates
@@ -122,12 +122,27 @@ module BlueJay
     end
 
     def build_response(raw_data, options={})
-      BlueJay::Response.new(raw_data, response_parser, options.merge(:debug => debug?))
+      response = BlueJay::Response.new(raw_data, response_parser, options)
+      response.successful? ? logger.debug(response) : logger.warn(response)
+      response
     end
 
     def options
       @options
     end
 
+    def logger
+      @logger ||= LoggerWrapper.new(options[:logger] || default_logger)
+    end
+
+    def log_raw_response(message, response, severity=Logger::WARN)
+      logger.add(severity) { message + ": " + build_response(response, :raw_data => true).to_s }
+    end
+
+    def default_logger
+      log = Logger.new(STDOUT)
+      log.level = debug? ? Logger::DEBUG : Logger::WARN
+      log
+    end
   end
 end

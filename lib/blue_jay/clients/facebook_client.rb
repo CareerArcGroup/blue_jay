@@ -2,7 +2,6 @@
 module BlueJay
   class FacebookClient < Client
 
-    SHORT_TOKEN_EXPIRES_IN =
     LONG_TOKEN_EXPIRES_IN = 5184000   # 60 days
 
     # ============================================================================
@@ -51,7 +50,8 @@ module BlueJay
         data_wrapper = JSON.parse(response.body)
         data_wrapper["data"]
       else
-        puts "BlueJay: Unable to debug token '#{access_token}', API response: #{response.inspect}"; nil
+        logger.error("BlueJay: Unable to debug token '#{access_token}', API response: #{response.inspect}")
+        nil
       end
     end
 
@@ -111,6 +111,8 @@ module BlueJay
         if success
           @access_token = response.body.split('=').last if success
           @access_token_expires_at = nil
+        else
+          log_raw_response("Failed to retrieve access token", response)
         end
 
         success

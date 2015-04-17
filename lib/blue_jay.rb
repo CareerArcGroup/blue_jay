@@ -5,6 +5,7 @@ end
 require 'oauth'
 require 'json'
 require 'blue_jay/version'
+require 'blue_jay/logger_wrapper'
 
 require 'blue_jay/client'
 require 'blue_jay/clients/oauth_client'
