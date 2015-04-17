@@ -60,17 +60,13 @@ module BlueJay
     end
 
     def to_s
-      body_str = raw_response.body
-      header_list = []
-
-      headers.each do |k, v|
-        header_list << "    #{k}: #{v}"
-      end
-
-      parts = ["BlueJay <= #{raw_response.inspect}"]
-      parts += ["  Headers:", header_list.join("\n")]
-      parts += ["  Body:", body_str]
-      parts += ["  Errors:", errors.inspect] if !successful?
+      parts = ["BlueJay Parsed Response:"]
+      parts += ["  Successful?:   #{successful?}"]
+      parts += ["  Rate-limited?: #{rate_limited?}"]
+      parts += ["    Remaining:   #{rate_limit_remaining}"] if rate_limit_remaining
+      parts += ["    Reset time:  #{rate_limit_reset_time}"] if rate_limit_reset_time
+      parts += ["  Data:          ", data]
+      parts += ["  Errors:        ", errors.inspect] if !successful?
 
       parts.join("\n") + "\n"
     end

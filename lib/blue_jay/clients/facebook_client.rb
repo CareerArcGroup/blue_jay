@@ -2,6 +2,7 @@
 module BlueJay
   class FacebookClient < Client
 
+    SHORT_TOKEN_EXPIRES_IN =
     LONG_TOKEN_EXPIRES_IN = 5184000   # 60 days
 
     # ============================================================================
@@ -22,47 +23,11 @@ module BlueJay
     end
 
     def authorize(code, redirect_uri, options={})
-      begin
-        response = get_raw(uri_with_query("/oauth/access_token", options.merge(
-          client_id: client_id,
-          client_secret: client_secret,
-          redirect_uri: redirect_uri,
-          code: code
-        )))
-
-        success = response.is_a? Net::HTTPSuccess
-
-        if success
-          @access_token = response.body
-          @access_token_expires_at = Time.now + expires_in.to_i
-        end
-
-        success
-      rescue
-        false
-      end
+      access_token_request(options.merge(redirect_uri: redirect_uri, code: code))
     end
 
     def exchange_access_token(options={})
-      begin
-        response = get_raw(uri_with_query("/oauth/access_token", options.merge(
-          client_id: client_id,
-          client_secret: client_secret,
-          grant_type: "fb_exchange_token",
-          fb_exchange_token: access_token
-        )))
-
-        success = response.is_a? Net::HTTPSuccess
-
-        if success
-          @access_token, expires_in = response.body.split('&').map {|p| p.split('=').last}
-          @access_token_expires_at = Time.now + (expires_in ? expires_in.to_i : LONG_TOKEN_EXPIRES_IN)
-        end
-
-        success
-      rescue
-        false
-      end
+      access_token_request(options.merge(grant_type: "fb_exchange_token", fb_exchange_token: access_token))
     end
 
     def connected?
@@ -86,7 +51,7 @@ module BlueJay
         data_wrapper = JSON.parse(response.body)
         data_wrapper["data"]
       else
-        puts "BlueJay: Unable to debug token '#{access_token}', API response: #{response.inspect}"
+        puts "BlueJay: Unable to debug token '#{access_token}', API response: #{response.inspect}"; nil
       end
     end
 
@@ -111,7 +76,13 @@ module BlueJay
     end
 
     def access_token_expires_at
-      @access_token_expires_at
+      @access_token_expires_at ||= begin
+        return nil unless access_token
+        return nil unless (token_info = debug_token)
+
+        expires_at = token_info["expires_at"] || 0
+        expires_at && expires_at > 0 ? Time.at(expires_at) : (Time.now + LONG_TOKEN_EXPIRES_IN)
+      end
     end
 
     # ============================================================================
@@ -127,6 +98,26 @@ module BlueJay
     end
 
     protected
+
+    def access_token_request(options={})
+      begin
+        response = get_raw(uri_with_query("/oauth/access_token", options.merge(
+          client_id: client_id,
+          client_secret: client_secret
+        )))
+
+        success = response.is_a? Net::HTTPSuccess
+
+        if success
+          @access_token = response.body.split('=').last if success
+          @access_token_expires_at = nil
+        end
+
+        success
+      rescue
+        false
+      end
+    end
 
     def get(path, params={})
       super(path, params.merge(access_token: access_token))
