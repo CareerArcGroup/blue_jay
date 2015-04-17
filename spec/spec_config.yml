@@ -16,6 +16,5 @@ facebook:
     consumer_secret: cf3b716940572895fe54fc4546c940ca
     token:           CAACCV2XXVV8BAGxwnFpzJ2uErHCfar2KfiGu9Xe0pw6fyLJmwDY4nLxkZALV8smZC5MzzyQwJCisqMiSryxfC7Yz6k2RfwogzRAI8i6w1su1hFGJlRZAtBxWr56EQrexCuv1gTdMXB3vZCdZCNpIvzpfZA5W9aFNiUDK7ymeGT4vz5f3PbIKiV
     secret:
-    debug:           true
   settings:
     friend_id:       1200016

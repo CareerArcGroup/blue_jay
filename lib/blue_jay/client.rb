@@ -29,15 +29,15 @@ module BlueJay
     end
 
     def proxy
-    	options[:proxy]
+      options[:proxy]
     end
 
     def debug?
-    	options[:debug]
+      options[:debug]
     end
 
     def path_prefix
-    	options[:path_prefix]
+      options[:path_prefix]
     end
 
     # ============================================================================
@@ -52,7 +52,6 @@ module BlueJay
 
     def get_raw(path, headers={})
       add_standard_headers(headers)
-      puts "BlueJay => GET #{site}#{path_prefix}#{path} #{headers}" if debug?
       get_core("#{path_prefix}#{path}", headers)
     end
 
@@ -72,7 +71,6 @@ module BlueJay
 
     def post_raw(path, body='', headers={})
       add_standard_headers(headers)
-      puts "BlueJay => POST #{site}#{path_prefix}#{path} #{headers} BODY: #{transform_body(body)}" if debug?
       post_core("#{path_prefix}#{path}", transform_body(body), headers)
     end
 
@@ -91,6 +89,7 @@ module BlueJay
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = (uri.port == 443)
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http.set_debug_output($stdout) if debug?
 
       if http.use_ssl?
         # use the system's built-in certificates
@@ -98,9 +97,7 @@ module BlueJay
         http.cert_store.set_default_paths
       end
 
-      response = http.start(&block)
-      build_response(response, :raw_data => true) if debug? # will cause debug output
-      response
+      http.start(&block)
     end
 
     def add_standard_headers(headers={})
@@ -121,15 +118,15 @@ module BlueJay
     end
 
     def response_parser
-    	raise NotImplementedError, 'implemented by subclass'
+      raise NotImplementedError, 'implemented by subclass'
     end
 
     def build_response(raw_data, options={})
-    	BlueJay::Response.new(raw_data, response_parser, options.merge(:debug => debug?))
+      BlueJay::Response.new(raw_data, response_parser, options.merge(:debug => debug?))
     end
 
     def options
-    	@options
+      @options
     end
 
   end
