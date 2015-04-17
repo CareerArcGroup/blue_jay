@@ -47,10 +47,6 @@ module BlueJay
       raw_response.header
     end
 
-    def debug?
-      options[:debug]
-    end
-
     # ============================================================================
     # Misc and Private Methods
     # ============================================================================
@@ -75,7 +71,6 @@ module BlueJay
 
     def parse_response(response)
       @parser.parse_response(self, response)
-      puts to_s if debug?
     end
 
     def options

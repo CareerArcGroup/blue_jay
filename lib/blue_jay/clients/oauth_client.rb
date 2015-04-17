@@ -61,7 +61,7 @@ module BlueJay
     def consumer
       @consumer ||= begin
         cons = OAuth::Consumer.new(consumer_key, consumer_secret, consumer_options)
-        cons.http.set_debug_output($stdout) if debug?
+        cons.http.set_debug_output(logger)
         cons
       end
     end
