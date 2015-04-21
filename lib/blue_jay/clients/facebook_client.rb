@@ -109,8 +109,8 @@ module BlueJay
         success = response.is_a? Net::HTTPSuccess
 
         if success
-          @access_token = response.body.split('=').last if success
-          @access_token_expires_at = nil
+          @access_token, expires_in = response.body.split('&').map { |x| x.split('=').last } if success
+          @access_token_expires_at = expires_in && expires_in.to_i > 0 ? expires_in.to_i : nil
         else
           log_raw_response("Failed to retrieve access token", response)
         end
@@ -135,6 +135,10 @@ module BlueJay
 
     def response_parser
       BlueJay::FacebookParser
+    end
+
+    def parse_token
+
     end
 
   end
