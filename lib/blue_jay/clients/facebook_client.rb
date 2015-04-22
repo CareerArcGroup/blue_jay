@@ -110,7 +110,7 @@ module BlueJay
 
         if success
           @access_token, expires_in = response.body.split('&').map { |x| x.split('=').last } if success
-          @access_token_expires_at = expires_in && expires_in.to_i > 0 ? expires_in.to_i : nil
+          @access_token_expires_at = expires_in && expires_in.to_i > 0 ? Time.at(expires_in.to_i) : nil
         else
           log_raw_response("Failed to retrieve access token", response)
         end
