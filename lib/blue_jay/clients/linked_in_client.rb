@@ -40,17 +40,39 @@ module BlueJay
     #     code                  One of 'anyone' (all members) or 'connections-only'
     #
     def share(options={})
-      post('/people/~/shares', options)
+      post("/people/~/shares", options)
+    end
+
+    # Creates a share on the specified company page (user must be an administrator
+    # and must have authorized the client with the rw_company_admin scope)
+    # Options:
+    #   comment                 Text of share. Share must contain comment and/or (title and submittent_url). Max length 700 bytes
+    #   content                 Parent container for the following options
+    #     title                 Title of share. Share must contain comment and/or (title and submittent_url). Max length 200 bytes
+    #     description           Description of share. Max length 256 bytes
+    #     submitted_url         URL for shared content. Invalid without title
+    #     submitted_image_url   URL for image of shared content. Invalid without title and submitted_url
+    #   visibility              Parent container for visibility code
+    #     code                  One of 'anyone' (all members) or 'connections-only'
+    #
+    def company_share(company_id, options={})
+      post("/companies/#{company_id}/shares", options)
     end
 
     # ============================================================================
     # Account Methods - These act on the API account
     # ============================================================================
 
-
+    # get general information about the user. optionally pass in an array
+    # of specific fields to get a refined list of information...
     def account_info(*fields)
       field_selector = (fields != nil && fields.any?) ? ":(#{fields.join(',')})" : ''
       get("/people/~#{field_selector}")
+    end
+
+    # get the list of companies of which the user is an administrator...
+    def admin_for_companies
+      get("/companies", :"is-company-admin" => true)
     end
 
     protected
