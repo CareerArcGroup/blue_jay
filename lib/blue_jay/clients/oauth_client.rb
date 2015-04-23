@@ -22,8 +22,8 @@ module BlueJay
       @access_token
     end
 
-    def request_token(options={})
-      consumer.get_request_token(options)
+    def request_token(options={}, *arguments, &block)
+      consumer.get_request_token(options, *arguments, &block)
     end
 
     def authentication_request_token(options={})
