@@ -95,7 +95,7 @@ module BlueJay
     end
 
     def multipart?(content)
-      content.is_a?(Hash) && content.values.any? {|v| v.respond_to?(:to_io)}
+      content.is_a?(Hash) && content.values.any? {|v| v.respond_to?(:to_io) || v.is_a?(UploadIO)}
     end
 
     def to_multipart_params(content)
@@ -104,17 +104,8 @@ module BlueJay
     end
 
     def to_multipart_value(value)
-      return value unless value.respond_to?(:to_io)
-      mime_type = case value.path
-      when /\.jpe?g/i
-        'image/jpeg'
-      when /\.gif$/i
-        'image/gif'
-      when /\.png$/i
-        'image/png'
-      else
-        'application/octet-stream'
-      end
+      return value unless value.respond_to?(:to_io) && value.respond_to?(:path)
+      mime_type = BlueJay::MIME.mime_type_for(value.path)
       UploadIO.new(value, mime_type)
     end
 
