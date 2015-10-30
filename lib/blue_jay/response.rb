@@ -10,8 +10,6 @@ module BlueJay
       @raw_response = response
 
       parse_response(response)
-
-      raise RateLimitException if rate_limited?
     end
 
     # ============================================================================

@@ -10,6 +10,7 @@ module BlueJay
       response.status = data.class
 
       # check for rate-limited response
+      # https://developer-programs.linkedin.com/documents/throttle-limits
       response.rate_limited = true if data.code == '403'
 
       begin
