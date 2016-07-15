@@ -1,6 +1,5 @@
 
 require 'blue_jay/response'
-require 'net/http/post/multipart'
 
 module BlueJay
   class OAuthClient < Client
@@ -59,11 +58,7 @@ module BlueJay
     CONSUMER_OPTIONS = [:site, :authorize_path, :request_token_path, :access_token_path, :request_endpoint]
 
     def consumer
-      @consumer ||= begin
-        cons = OAuth::Consumer.new(consumer_key, consumer_secret, consumer_options)
-        cons.http.set_debug_output(logger)
-        cons
-      end
+      @consumer ||= OAuth::Consumer.new(consumer_key, consumer_secret, consumer_options).tap { |c| c.http.set_debug_output(logger) }
     end
 
     def access_token
@@ -74,40 +69,9 @@ module BlueJay
       options.select {|k,v| CONSUMER_OPTIONS.include? k}
     end
 
-    def get_core(path, headers={})
-      access_token.get(path, headers)
+    # when we build a request, sign it with the access token...
+    def build_request(method, uri, body='', headers={})
+      super.tap {|r| access_token.sign! r}
     end
-
-    def post_core(path, body='', headers={})
-      multipart?(body) ? post_multipart(path, body, headers) : access_token.post(path, body, headers)
-    end
-
-    def post_multipart(path, body, headers={})
-      uri = URI.join(site, path)
-      params = to_multipart_params(body)
-      request = Net::HTTP::Post::Multipart.new(path, params)
-      headers.each {|key,value| request[key] = value}
-      access_token.sign! request
-
-      http_start(uri) do |http|
-        http.request(request)
-      end
-    end
-
-    def multipart?(content)
-      content.is_a?(Hash) && content.values.any? {|v| v.respond_to?(:to_io) || v.is_a?(UploadIO)}
-    end
-
-    def to_multipart_params(content)
-      params = content.map {|k,v| [k, to_multipart_value(v)]}.flatten
-      Hash[*params]
-    end
-
-    def to_multipart_value(value)
-      return value unless value.respond_to?(:to_io) && value.respond_to?(:path)
-      mime_type = BlueJay::MIME.mime_type_for(value.path)
-      UploadIO.new(value, mime_type)
-    end
-
   end
 end

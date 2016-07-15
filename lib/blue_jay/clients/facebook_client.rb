@@ -10,12 +10,12 @@ module BlueJay
 
     def initialize(options={})
       options[:site] ||= 'https://graph.facebook.com'
-      options[:path_prefix] ||= '/v2.0'
+      options[:path_prefix] ||= '/v2.7'
       super(options)
     end
 
     def authorize_url(redirect_uri, options={})
-      uri_with_query("https://www.facebook.com/v2.0/dialog/oauth", options.merge(
+      uri_with_query("https://www.facebook.com/v2.6/dialog/oauth", options.merge(
         client_id: client_id,
         redirect_uri: redirect_uri
       ))
@@ -97,6 +97,23 @@ module BlueJay
       post('/me/feed', options)
     end
 
+    # ============================================================================
+    # Photo Methods
+    # ============================================================================
+
+    def albums
+      get('/me/albums')
+    end
+
+    def upload_photo(image_or_url, options = {})
+      album_id = options.delete(:album_id)
+      options = multipart?(item: image_or_url) ?
+        options.merge(source: image_or_url) :
+        options.merge(url: image_or_url)
+
+      post("/#{album_id}/photos", options)
+    end
+
     protected
 
     def access_token_request(options={})
@@ -129,17 +146,8 @@ module BlueJay
       super(path, params.merge(access_token: access_token))
     end
 
-    def transform_body(body)
-      URI.encode_www_form(body)
-    end
-
     def response_parser
       BlueJay::FacebookParser
     end
-
-    def parse_token
-
-    end
-
   end
 end

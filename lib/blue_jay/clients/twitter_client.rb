@@ -59,7 +59,7 @@ module BlueJay
     def update_profile_image(image)
       encoded = Base64.encode64(File.read(image))
 
-      post('/account/update_profile_image.json', :image => encoded)
+      post('/account/update_profile_image.json', image: encoded)
     end
 
     # Updates the authenticating user's profile background image. Note that
@@ -67,7 +67,7 @@ module BlueJay
     def update_profile_background_image(image)
       encoded = Base64.encode64(File.read(image))
 
-      post('/account/update_profile_background_image.json', :image => encoded)
+      post('/account/update_profile_background_image.json', image: encoded)
     end
 
     # Updates the authenticating user's profile header image. Not that
@@ -91,7 +91,7 @@ module BlueJay
     # user a HTTP 403 may be returned, though for performance reasons you may get a 200 OK
     # message even if the friendship already exists.
     def add_friend(friend_id, follow=true)
-      post("/friendships/create.json", :user_id => friend_id, :follow => follow)
+      post("/friendships/create.json", user_id: friend_id, follow: follow)
     end
 
     # Allows the authenticating users to follow the user specified in the ID parameter.
@@ -100,21 +100,21 @@ module BlueJay
     # user a HTTP 403 may be returned, though for performance reasons you may get a 200 OK
     # message even if the friendship already exists.
     def add_friend_by_screen_name(screen_name, follow=true)
-      post("/friendships/create.json", :screen_name => screen_name, :follow => follow)
+      post("/friendships/create.json", screen_name: screen_name, follow: follow)
     end
 
     # Allows the authenticating users to un-follow the user specified in the ID parameter.
     # Returns the un-followed user in the requested format when successful. Returns a string
     # describing the failure condition when unsuccessful.
     def un_friend(friend_id)
-      post("/friendships/destroy.json", :user_id => friend_id)
+      post("/friendships/destroy.json", user_id: friend_id)
     end
 
     # Allows the authenticating users to un-follow the user specified in the ID parameter.
     # Returns the un-followed user in the requested format when successful. Returns a string
     # describing the failure condition when unsuccessful.
     def un_friend_by_screen_name(screen_name)
-      post("/friendships/destroy.json", :screen_name => screen_name)
+      post("/friendships/destroy.json", screen_name: screen_name)
     end
 
     # Test for the existence of friendship between two users. Will return true if user_a follows user_b,
@@ -122,7 +122,7 @@ module BlueJay
     # Additionally the authenticating user must be a follower of the protected user.
     # Options: cursor
     def follower_ids(user_id, options={})
-      get("/followers/ids.json", options.merge(:user_id => user_id))
+      get("/followers/ids.json", options.merge(user_id: user_id))
     end
 
     # Test for the existence of friendship between two users. Will return true if user_a follows user_b,
@@ -130,7 +130,7 @@ module BlueJay
     # Additionally the authenticating user must be a follower of the protected user.
     # Options: cursor
     def follower_ids_by_screen_name(screen_name, options={})
-      get("/followers/ids.json", options.merge(:screen_name => screen_name))
+      get("/followers/ids.json", options.merge(screen_name: screen_name))
     end
 
     # Returns detailed information about the relationship between two users.
@@ -159,7 +159,7 @@ module BlueJay
     #   display_coordinates     Whether or not to put a pin on the exact coordinates of the tweet.
     #
     def tweet(message, options={})
-      post("/statuses/update.json", options.merge(:status => message))
+      post("/statuses/update.json", options.merge(status: message))
     end
 
     # Tweets with a picture :-)
