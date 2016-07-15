@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.add_dependency "oauth"
   s.add_dependency "json"
   s.add_dependency "multipart-post"
-  s.add_development_dependency "bundler", "~> 1.1.0"
+  s.add_development_dependency "bundler"
   s.add_development_dependency 'rspec'
   s.add_development_dependency "simplecov"
 

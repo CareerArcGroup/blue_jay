@@ -25,7 +25,7 @@ describe FacebookClient do
 
     # map the credentials to a symbol-keyed hash
     # and pass them in as options to the client...
-    credentials_hash = @config["facebook"]["client"].inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
+    credentials_hash = @config["facebook"]["credentials"].inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
 
     @client = FacebookClient.new(credentials_hash)
 
@@ -40,7 +40,7 @@ describe FacebookClient do
     @client.should be_connected
   end
 
-  context "with valid Twitter OAuth credentials" do
+  context "with valid Facebook credentials" do
 
     it "is authorized" do
       @client.should be_authorized
@@ -58,9 +58,41 @@ describe FacebookClient do
       response.data["id"].nil?.should be false
     end
 
+    it "can get a list of the users's albums" do
+      response = @client.albums
+      response.successful?.should be true
+      response.data["data"].nil?.should be false
+    end
+
+    it "can upload a photo to the app album" do
+      ocean = File.new(File.expand_path("../assets/profile_banner.jpg", __FILE__))
+
+      response = @client.upload_photo(ocean, message: "This is a banner", no_story: true)
+      response.successful?.should be true
+      response.data["id"].nil?.should be false
+    end
+
+    it "can upload a photo to the timeline and share a post about it" do
+      ocean = File.new(File.expand_path("../assets/fishing_cat.jpg", __FILE__))
+
+      albums = @client.albums
+      timeline_album = albums.data["data"].find { |a| a["name"] == "Timeline Photos" }
+      album_id = timeline_album["id"]
+
+      response = @client.upload_photo(ocean, album_id: album_id, message: "This is a fishing cat", no_story: true)
+      response.successful?.should be true
+      response.data["id"].nil?.should be false
+
+      photo_id = response.data["id"]
+
+      response = @client.share(message: "Hello World (with fishing cat) from dimension #{Random.rand(9999)+1}", object_attachment: photo_id)
+      response.successful?.should be true
+      response.data["id"].nil?.should be false
+    end
+
   end
 
-  context "with invalid Twitter OAuth credentials" do
+  context "with invalid Facebook credentials" do
     it "is not authorized" do
       @unauthorized_client.should_not be_authorized
     end

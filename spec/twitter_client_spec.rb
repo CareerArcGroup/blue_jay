@@ -26,7 +26,7 @@ describe TwitterClient do
 
     # map the credentials to a symbol-keyed hash
     # and pass them in as options to the client...
-    credentials_hash = @config["twitter"]["client"].inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
+    credentials_hash = @config["twitter"]["credentials"].inject({}) { |memo,(k,v)| memo[k.to_sym] = v; memo }
 
     @client = TwitterClient.new(credentials_hash)
 
