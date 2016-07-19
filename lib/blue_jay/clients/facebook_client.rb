@@ -15,7 +15,7 @@ module BlueJay
     end
 
     def authorize_url(redirect_uri, options={})
-      uri_with_query("https://www.facebook.com/v2.6/dialog/oauth", options.merge(
+      uri_with_query("https://www.facebook.com/v2.7/dialog/oauth", options.merge(
         client_id: client_id,
         redirect_uri: redirect_uri
       ))
@@ -118,21 +118,13 @@ module BlueJay
 
     def access_token_request(options={})
       begin
-        response = get_raw(uri_with_query("/oauth/access_token", options.merge(
-          client_id: client_id,
-          client_secret: client_secret
-        )))
+        response = get("/oauth/access_token", options.merge(client_id: client_id, client_secret: client_secret))
 
-        success = response.is_a? Net::HTTPSuccess
-
-        if success
-          @access_token, expires_in = response.body.split('&').map { |x| x.split('=').last } if success
-          @access_token_expires_at = expires_in && expires_in.to_i > 0 ? (Time.now + expires_in.to_i) : nil
-        else
-          log_raw_response("Failed to retrieve access token", response)
+        if response.successful?
+          @access_token = response.data["access_token"]
         end
 
-        success
+        response.successful?
       rescue
         false
       end
