@@ -89,11 +89,11 @@ module BlueJay
     # Account Methods - These act on the API account
     # ============================================================================
 
-    def account_info()
-      get('/me')
+    def account_info(options={})
+      get('/me', options)
     end
 
-    def share(options = {})
+    def share(options={})
       post('/me/feed', options)
     end
 
@@ -101,11 +101,11 @@ module BlueJay
     # Photo Methods
     # ============================================================================
 
-    def albums
-      get('/me/albums')
+    def albums(options={})
+      get('/me/albums', options)
     end
 
-    def upload_photo(image_or_url, options = {})
+    def upload_photo(image_or_url, options={})
       album_id = options.delete(:album_id)
       options = multipart?(item: image_or_url) ?
         options.merge(source: image_or_url) :
