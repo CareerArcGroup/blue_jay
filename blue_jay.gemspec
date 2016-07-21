@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.homepage	= 'https://github.com/CareerArcGroup/blue_jay'
 
   s.add_dependency "oauth"
-  s.add_dependency "json"
+  s.add_dependency "json", "~> 1.8"
   s.add_dependency "multipart-post"
   s.add_development_dependency "bundler"
   s.add_development_dependency 'rspec'

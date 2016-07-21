@@ -87,7 +87,7 @@ module BlueJay
           Net::HTTP::Get.new(uri.to_s)
         when :post
           multipart?(body) ?
-            Net::HTTP::Post::Multipart.new(uri, to_multipart_params(body)) :
+            Net::HTTP::Post::Multipart.new(uri.path, to_multipart_params(body)) :
             Net::HTTP::Post.new(uri.to_s).tap do |req|
               req["Content-Type"] ||= "application/x-www-form-urlencoded"
               req.body = transform_body(body)
