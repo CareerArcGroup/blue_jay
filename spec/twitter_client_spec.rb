@@ -68,6 +68,13 @@ describe TwitterClient do
       response = @client.tweet("Hello World from dimension #{Random.rand(9999)+1}")
       response.successful?.should be true
       response.data["id"].nil?.should be false
+
+      # this one fails with "Could not authenticate you" in
+      # the case when we're not encoding/calculating the OAuth
+      # signature correctly (added after failed change from 3.5 to 4.0.2)
+      response = @client.tweet("Can you recommend anyone for this #job? Barista (US) - http://bit.ly/1LQN6fZ #Hospitality *1050 SW ALDER, #{Random.rand(9999)+1}, OR #Veterans #Hiring")
+      response.successful?.should be true
+      response.data["id"].nil?.should be false
     end
 
     it "can tweet with media" do
