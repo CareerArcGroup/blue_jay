@@ -58,7 +58,7 @@ module BlueJay
     CONSUMER_OPTIONS = [:site, :authorize_path, :request_token_path, :access_token_path, :request_endpoint]
 
     def consumer
-      @consumer ||= OAuth::Consumer.new(consumer_key, consumer_secret, consumer_options).tap { |c| c.http.set_debug_output(output) }
+      @consumer ||= OAuth::Consumer.new(consumer_key, consumer_secret, consumer_options).tap { |c| c.http.set_debug_output(logger) }
     end
 
     def access_token
