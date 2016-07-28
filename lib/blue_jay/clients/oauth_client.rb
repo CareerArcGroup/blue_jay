@@ -73,5 +73,14 @@ module BlueJay
     def build_request(method, uri, body='', headers={})
       super.tap {|r| access_token.sign! r}
     end
+
+    def transform_body(body)
+      if body.is_a?(Hash)
+        OAuth::Helper.normalize(body)
+      else
+        body.to_s
+      end
+    end
+
   end
 end

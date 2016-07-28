@@ -1,3 +1,3 @@
 module BlueJay
-	VERSION = "3.6"
+  VERSION = "4.0.3"
 end

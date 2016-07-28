@@ -88,7 +88,7 @@ module BlueJay
         when :post
           multipart?(body) ?
             Net::HTTP::Post::Multipart.new(uri.path, to_multipart_params(body)) :
-            Net::HTTP::Post.new(uri.to_s).tap do |req|
+            Net::HTTP::Post.new(uri.path).tap do |req|
               req["Content-Type"] ||= "application/x-www-form-urlencoded"
               req.body = transform_body(body)
             end
@@ -133,8 +133,7 @@ module BlueJay
     end
 
     def transform_body(body)
-      body.is_a?(Hash) ? URI.encode_www_form(body) : body
-      #body
+      body
     end
 
     # ============================================================================

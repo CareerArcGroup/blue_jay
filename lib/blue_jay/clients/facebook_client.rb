@@ -138,6 +138,10 @@ module BlueJay
       super(path, params.merge(access_token: access_token))
     end
 
+    def transform_body(body)
+      URI.encode_www_form(body)
+    end
+
     def response_parser
       BlueJay::FacebookParser
     end
