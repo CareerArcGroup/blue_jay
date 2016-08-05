@@ -1,4 +1,6 @@
 
+require 'logger'
+require 'blue_jay/request'
 require 'blue_jay/response'
 require 'net/http/post/multipart'
 
@@ -34,10 +36,6 @@ module BlueJay
       options[:proxy]
     end
 
-    def debug?
-      options[:debug]
-    end
-
     def path_prefix
       options[:path_prefix]
     end
@@ -49,19 +47,11 @@ module BlueJay
     # ============================================================================
 
     def get(path, params={})
-      build_response get_raw(uri_with_query(path,params))
-    end
-
-    def get_raw(path, headers={})
-      perform_request(:get, "#{path_prefix}#{path}", nil, headers)
+      perform_request(:get, uri_with_query(path, params))
     end
 
     def post(path, body='')
-      build_response post_raw(path, body)
-    end
-
-    def post_raw(path, body='', headers={})
-      perform_request(:post, "#{path_prefix}#{path}", body, headers)
+      perform_request(:post, path, body)
     end
 
     # ============================================================================
@@ -69,35 +59,48 @@ module BlueJay
     # ============================================================================
 
     # execute the HTTP request...
-    def perform_request(method, path, body, headers={})
-      uri = URI.join(site, path)
-      add_standard_headers(headers)
-      request = build_request(method, uri, body, headers)
+    def perform_request(method, path, body='', headers={})
+      uri     = URI.join(site, "#{path_prefix}#{path}")
+      request = BlueJay::Request.new(method, uri, body, add_standard_headers(headers))
+      trace   = BlueJay::Trace.begin(request)
 
-      http_start(uri) do |http|
-        http.request(request)
+      http_logger.reset!
+
+      http_request = build_request(request)
+      http_response = http_start(uri) do |http|
+        http.request(http_request)
       end
+
+      response = BlueJay::Response.new(trace.id, http_response, response_parser)
+
+      trace.complete_request(response)
+      trace.log = http_logger.read
+
+      # log the response based on success
+      response.successful? ? logger.debug(trace) : logger.warn(trace)
+
+      response
     end
 
     # build the HTTP request object, depending
     # on the method and the content (handle multi-part POSTs)...
-    def build_request(method, uri, body='', headers={})
-      request = case method
+    def build_request(request)
+      http_request = case request.method
         when :get
-          Net::HTTP::Get.new(uri.to_s)
+          Net::HTTP::Get.new(request.uri.to_s)
         when :post
-          multipart?(body) ?
-            Net::HTTP::Post::Multipart.new(uri.path, to_multipart_params(body)) :
-            Net::HTTP::Post.new(uri.path).tap do |req|
+          multipart?(request.body) ?
+            Net::HTTP::Post::Multipart.new(request.uri.path, to_multipart_params(request.body)) :
+            Net::HTTP::Post.new(request.uri.path).tap do |req|
               req["Content-Type"] ||= "application/x-www-form-urlencoded"
-              req.body = transform_body(body)
+              req.body = transform_body(request.body)
             end
         else
-          raise ArgumentError, "Unsupported method '#{method}'"
+          raise ArgumentError, "Unsupported method '#{request.method}'"
         end
 
-      headers.each { |key,value| request[key] = value }
-      request
+      request.headers.each { |key,value| http_request[key] = value }
+      http_request
     end
 
     # build the HTTP object...
@@ -105,7 +108,7 @@ module BlueJay
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = (uri.port == 443)
       http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      http.set_debug_output(logger)
+      http.set_debug_output(http_logger)
 
       if http.use_ssl?
         # use the system's built-in certificates
@@ -118,7 +121,7 @@ module BlueJay
 
     # add blue_jay standard headers...
     def add_standard_headers(headers={})
-      headers.merge!("User-Agent" => "blue_jay gem v#{BlueJay::VERSION}")
+      headers.merge("User-Agent" => "blue_jay gem v#{BlueJay::VERSION}")
     end
 
     # build a URI with a query string based on the
@@ -139,12 +142,6 @@ module BlueJay
     # ============================================================================
     # Response handling
     # ============================================================================
-
-    def build_response(raw_data, options={})
-      response = BlueJay::Response.new(raw_data, response_parser, options)
-      response.successful? ? logger.debug(response) : logger.warn(response)
-      response
-    end
 
     def response_parser
       raise NotImplementedError, 'implemented by subclass'
@@ -170,21 +167,15 @@ module BlueJay
     end
 
     # ============================================================================
-    # Logging
+    # Logging/tracing
     # ============================================================================
 
+    def http_logger
+      @http_logger ||= BlueJay::Logging::HttpLogger.new
+    end
+
     def logger
-      @logger ||= LoggerWrapper.new(options[:logger] || default_logger)
-    end
-
-    def log_raw_response(message, response, severity=Logger::WARN)
-      logger.add(severity) { message + ": " + build_response(response, :raw_data => true).to_s }
-    end
-
-    def default_logger
-      log = Logger.new(STDOUT)
-      log.level = debug? ? Logger::DEBUG : Logger::WARN
-      log
+      @logger ||= (options[:logger] || BlueJay.logger)
     end
   end
 end

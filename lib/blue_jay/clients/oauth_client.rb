@@ -58,7 +58,7 @@ module BlueJay
     CONSUMER_OPTIONS = [:site, :authorize_path, :request_token_path, :access_token_path, :request_endpoint]
 
     def consumer
-      @consumer ||= OAuth::Consumer.new(consumer_key, consumer_secret, consumer_options).tap { |c| c.http.set_debug_output(logger) }
+      @consumer ||= OAuth::Consumer.new(consumer_key, consumer_secret, consumer_options).tap { |c| c.http.set_debug_output(http_logger) }
     end
 
     def access_token
@@ -70,7 +70,7 @@ module BlueJay
     end
 
     # when we build a request, sign it with the access token...
-    def build_request(method, uri, body='', headers={})
+    def build_request(request)
       super.tap {|r| access_token.sign! r}
     end
 

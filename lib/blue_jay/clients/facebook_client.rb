@@ -42,17 +42,9 @@ module BlueJay
     end
 
     def debug_token
-      response = get_raw(uri_with_query("/debug_token",
+      response = get("/debug_token",
         input_token: access_token,
-        access_token: [client_id, client_secret].join("|")))
-
-      if response && response.kind_of?(Net::HTTPSuccess)
-        data_wrapper = JSON.parse(response.body)
-        data_wrapper["data"]
-      else
-        logger.error("BlueJay: Unable to debug token '#{access_token}', API response: #{response.inspect}")
-        nil
-      end
+        access_token: [client_id, client_secret].join("|"))
     end
 
     # ============================================================================
@@ -60,11 +52,11 @@ module BlueJay
     # ============================================================================
 
     def client_id
-      options[:client_id]
+      options[:client_id] || options[:consumer_key]
     end
 
     def client_secret
-      options[:client_secret]
+      options[:client_secret] || options[:consumer_secret]
     end
 
     def app_access_token
@@ -78,8 +70,12 @@ module BlueJay
     def access_token_expires_at
       @access_token_expires_at ||= begin
         return nil unless access_token
-        return nil unless (token_info = debug_token)
 
+        token_response = debug_token
+
+        return nil unless token_response.successful?
+
+        token_info = token_response.data["data"]
         expires_at = token_info["expires_at"] || 0
         expires_at && expires_at > 0 ? Time.at(expires_at) : (Time.now + LONG_TOKEN_EXPIRES_IN)
       end
@@ -131,11 +127,13 @@ module BlueJay
     end
 
     def get(path, params={})
-      super(path, params.merge(access_token: access_token))
+      params[:access_token] ||= access_token
+      super
     end
 
     def post(path, params={})
-      super(path, params.merge(access_token: access_token))
+      params[:access_token] ||= access_token
+      super
     end
 
     def transform_body(body)
