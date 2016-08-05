@@ -78,12 +78,11 @@ module BlueJay
     protected
 
     def add_standard_headers(headers={})
-      headers.merge!(
+      super(headers.merge(
         'Accept' => 'application/json',
         'Content-Type' => 'application/json',
         'x-li-format' => 'json'
-        )
-      super
+      ))
     end
 
     def transform_body(body)

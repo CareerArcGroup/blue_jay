@@ -1,5 +1,5 @@
 
 module BlueJay
-  class RateLimitException < Exception
+  class RateLimitException < StandardError
   end
 end

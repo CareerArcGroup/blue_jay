@@ -4,7 +4,8 @@ require 'blue_jay/exceptions/rate_limit_exception'
 module BlueJay
   class Response
 
-    def initialize(response, parser, options={})
+    def initialize(id, response, parser, options={})
+      @id = id
       @parser = parser
       @options = options
       @raw_response = response
@@ -16,6 +17,7 @@ module BlueJay
     # Accessors and Options
     # ============================================================================
 
+    def id; @id end
     def successful?; @successful end
     def successful=(val); @successful=val end
     def data; @data end
@@ -41,8 +43,18 @@ module BlueJay
       @raw_response
     end
 
+    def code
+      raw_response.code
+    end
+
+    def message
+      raw_response.message
+    end
+
     def headers
-      raw_response.header
+      raw_response.each_header.inject({}) do |memo,(k,v)|
+        memo.update(k => v)
+      end
     end
 
     # ============================================================================
@@ -54,15 +66,7 @@ module BlueJay
     end
 
     def to_s
-      parts = ["BlueJay Parsed Response:"]
-      parts += ["  Successful?:   #{successful?}"]
-      parts += ["  Rate-limited?: #{rate_limited?}"]
-      parts += ["    Remaining:   #{rate_limit_remaining}"] if rate_limit_remaining
-      parts += ["    Reset time:  #{rate_limit_reset_time}"] if rate_limit_reset_time
-      parts += ["  Data:          ", data]
-      parts += ["  Errors:        ", errors.inspect] if !successful?
-
-      parts.join("\n") + "\n"
+      "#{code} - #{message}"
     end
 
     private
