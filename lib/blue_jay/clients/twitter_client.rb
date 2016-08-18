@@ -2,7 +2,7 @@
 module BlueJay
   class TwitterClient < OAuthClient
 
-    filtered_attributes :filtered_data
+    filtered_attributes :snipped_data
 
     # ============================================================================
     # Client Initializers and Public Methods
@@ -196,8 +196,8 @@ module BlueJay
 
     # filter raw data out of logs, we don't need to
     # see binary image data...
-    def filtered_data
-      /(?:image|banner)=(?<filtered>[^&"]+)/
+    def snipped_data
+      /(?:image|banner)=(?<snipped>[^&"]+)/
     end
   end
 end

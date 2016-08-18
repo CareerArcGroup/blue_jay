@@ -1,6 +1,6 @@
 module BlueJay
   class Request
-    attr_reader :method, :uri, :body, :headers
+    attr_accessor :method, :uri, :body, :headers
 
     def initialize(method, uri, body=nil, headers={})
       @method = method

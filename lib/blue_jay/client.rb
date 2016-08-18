@@ -62,10 +62,9 @@ module BlueJay
     def perform_request(method, path, body='', headers={})
       uri     = URI.join(site, "#{path_prefix}#{path}")
       request = BlueJay::Request.new(method, uri, body, add_standard_headers(headers))
-      trace   = BlueJay::Trace.begin(request)
+      trace   = BlueJay::Trace.begin(request, filtered_terms)
 
       http_logger.reset!
-      http_logger.filtered_terms = filtered_terms
 
       http_request = build_request(request)
       http_response = http_start(uri) do |http|
@@ -186,6 +185,12 @@ module BlueJay
       self.class.filtered_attributes.map do |term|
         self.send(term)
       end.compact
+    end
+
+    filtered_attributes :multipart_snipper
+
+    def multipart_snipper
+      %r{--#{Multipartable::DEFAULT_BOUNDARY}(?<snipped>.*?)--#{Multipartable::DEFAULT_BOUNDARY}--}m
     end
 
     def http_logger
