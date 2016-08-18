@@ -22,9 +22,10 @@ module SpecHelper
 
       logger = Logger.new(STDERR)
       logger.level = Logger::DEBUG
+      #logger.formatter = BlueJay::Logging::GelfFormatter.new
 
       BlueJay.logger = logger
-      #BlueJay.trace!
+      BlueJay.trace!
 
       options = { }
       options_with_credentials = options.merge(
