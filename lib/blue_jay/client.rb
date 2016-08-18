@@ -65,6 +65,7 @@ module BlueJay
       trace   = BlueJay::Trace.begin(request)
 
       http_logger.reset!
+      http_logger.filtered_terms = filtered_terms
 
       http_request = build_request(request)
       http_response = http_start(uri) do |http|
@@ -169,6 +170,23 @@ module BlueJay
     # ============================================================================
     # Logging/tracing
     # ============================================================================
+
+    class << self
+      def filtered_attributes(*attributes)
+        @filtered_attributes ||= []
+        @filtered_attributes.concat(attributes) if attributes
+      end
+
+      def inherited(subclass)
+        subclass.filtered_attributes(*filtered_attributes)
+      end
+    end
+
+    def filtered_terms
+      self.class.filtered_attributes.map do |term|
+        self.send(term)
+      end.compact
+    end
 
     def http_logger
       @http_logger ||= BlueJay::Logging::HttpLogger.new

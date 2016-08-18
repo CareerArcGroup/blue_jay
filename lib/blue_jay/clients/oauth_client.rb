@@ -4,6 +4,11 @@ require 'blue_jay/response'
 module BlueJay
   class OAuthClient < Client
 
+    # filter sensitive data out of all requests...
+    # some of these should never appear in the request anyway,
+    # but they're listed here just to be safe...
+    filtered_attributes :consumer_key, :consumer_secret, :token, :secret
+
     # ============================================================================
     # Client Initializers and Public Methods
     # ============================================================================
@@ -71,7 +76,7 @@ module BlueJay
 
     # when we build a request, sign it with the access token...
     def build_request(request)
-      super.tap {|r| access_token.sign! r}
+      super.tap {|r| access_token.sign! r }
     end
 
     def transform_body(body)
@@ -81,6 +86,5 @@ module BlueJay
         body.to_s
       end
     end
-
   end
 end

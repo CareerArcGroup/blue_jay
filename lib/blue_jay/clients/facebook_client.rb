@@ -4,6 +4,8 @@ module BlueJay
 
     LONG_TOKEN_EXPIRES_IN = 5184000   # 60 days
 
+    filtered_attributes :client_id, :client_secret, :access_token
+
     # ============================================================================
     # Client Initializers and Public Methods
     # ============================================================================

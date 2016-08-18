@@ -2,6 +2,8 @@
 module BlueJay
   class TwitterClient < OAuthClient
 
+    filtered_attributes :filtered_data
+
     # ============================================================================
     # Client Initializers and Public Methods
     # ============================================================================
@@ -192,5 +194,10 @@ module BlueJay
       BlueJay::TwitterParser
     end
 
+    # filter raw data out of logs, we don't need to
+    # see binary image data...
+    def filtered_data
+      /(?:image|banner)=(?<filtered>[^&"]+)/
+    end
   end
 end
