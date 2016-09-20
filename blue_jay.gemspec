@@ -12,13 +12,14 @@ Gem::Specification.new do |s|
   s.authors	= ["Stephen Roos"]
   s.email	= 'sroos@tweetmyjobs.com'
   s.homepage	= 'https://github.com/CareerArcGroup/blue_jay'
+  s.license = 'MIT'
 
-  s.add_dependency "oauth"
-  s.add_dependency "json"
-  s.add_dependency "multipart-post"
-  s.add_development_dependency "bundler"
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency "simplecov"
+  s.add_dependency "oauth", "~> 0"
+  s.add_dependency "json", "~> 1.8"
+  s.add_dependency "multipart-post", "~> 1.2"
+  s.add_development_dependency "bundler", "~> 1.12"
+  s.add_development_dependency "rspec", "~> 3.5"
+  s.add_development_dependency "simplecov", "~> 0"
 
   s.files = `git ls-files`.split("\n")
   s.executables = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
