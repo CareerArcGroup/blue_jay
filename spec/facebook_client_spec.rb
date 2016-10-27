@@ -15,7 +15,6 @@ describe FacebookClient do
 
     it "is authorized" do
       config.client.should be_authorized
-      config.client.access_token_expires_at.nil?.should be false
     end
 
     it "can get user account info" do
@@ -43,6 +42,22 @@ describe FacebookClient do
       response.successful?.should be true
       response.data["id"].nil?.should be false
     end
+
+    it "can retrieve a page access token" do
+      response = config.client.page_access_token(config.settings["page_id"])
+
+      response.successful?.should be true
+      response.data["access_token"].nil?.should be false
+    end
+
+    it "can create a page tab" do
+      token_response = config.client.page_access_token(config.settings["page_id"])
+      access_token = token_response.data["access_token"]
+      response = config.client.create_tab(config.settings["page_id"], app_id: config.consumer_key, access_token: access_token)
+
+      response.successful?.should be true
+    end
+
   end
 
   context "with invalid Facebook credentials" do
