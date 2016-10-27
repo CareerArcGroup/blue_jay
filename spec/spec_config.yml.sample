@@ -14,6 +14,7 @@ facebook:
   token:              my_token
  settings:
   friend_id:          12345
+  page_id:            12345
 linkedin:
  credentials:
   consumer_key:       my_consumer_key

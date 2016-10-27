@@ -137,7 +137,7 @@ module BlueJay
 
     # Returns detailed information about the relationship between two users.
     def get_friendship(a, b)
-      get("/friendships/show.json?", source_screen_name: a, target_screen_name: b)
+      get("/friendships/show.json", source_screen_name: a, target_screen_name: b)
     end
 
     alias :friend :add_friend_by_screen_name

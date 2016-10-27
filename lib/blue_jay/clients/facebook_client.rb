@@ -112,6 +112,18 @@ module BlueJay
       post("/#{album_id}/photos", options)
     end
 
+    # ============================================================================
+    # Page Methods
+    # ============================================================================
+
+    def page_access_token(page_id)
+      get("/#{page_id}", fields: "access_token")
+    end
+
+    def create_tab(page_id, options={})
+      post("/#{page_id}/tabs", options)
+    end
+
     protected
 
     def access_token_request(options={})
