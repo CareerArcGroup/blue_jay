@@ -75,6 +75,13 @@ module BlueJay
       get("/companies", :"is-company-admin" => true)
     end
 
+    # get general information about a company. optionally pass in an array
+    # of specific fields to get a refined list of information...
+    def company_info(company_id, *fields)
+      field_selector = (fields != nil && fields.any?) ? ":(#{fields.join(',')})" : ''
+      get("/companies/#{company_id}#{field_selector}")
+    end
+
     protected
 
     def add_standard_headers(headers={})
