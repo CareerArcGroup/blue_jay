@@ -1,4 +1,3 @@
-
 require 'spec_helper'
 require 'yaml'
 include BlueJay
@@ -35,6 +34,12 @@ describe LinkedInClient do
 
       response.successful?.should be true
       response.data["updateKey"].nil?.should be false
+    end
+
+    it "can get company info" do
+      response = config.client.company_info(2414183, 'square-logo-url')
+      response.successful?.should be true
+      response.data["squareLogoUrl"].nil?.should be false
     end
   end
 
