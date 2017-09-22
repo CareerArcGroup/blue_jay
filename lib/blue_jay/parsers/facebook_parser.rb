@@ -1,7 +1,7 @@
 module BlueJay
   class FacebookParser < Parser
 
-    RATE_LIMITED_CODES = [4, 17, 341]
+    RATE_LIMITED_CODES = [4, 32, 17, 341]
 
     def self.parse_response(response, data)
       super(response, data)
