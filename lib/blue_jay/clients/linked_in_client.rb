@@ -8,7 +8,7 @@ module BlueJay
 
     def initialize(options={})
       options[:site] ||= 'https://api.linkedin.com'
-      options[:authorize_url] ||= 'https://www.linkedin.com/oauth/v2/authorize'
+      options[:authorize_url] ||= 'https://www.linkedin.com/oauth/v2/authorization'
       options[:token_url]     ||= 'https://www.linkedin.com/oauth/v2/accessToken'
       options[:path_prefix] ||= '/v1'
 
