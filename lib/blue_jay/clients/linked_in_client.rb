@@ -1,6 +1,6 @@
 
 module BlueJay
-  class LinkedInClient < OAuthClient
+  class LinkedInClient < OAuth2Client
 
     # ============================================================================
     # Client Initializers and Public Methods
@@ -8,9 +8,8 @@ module BlueJay
 
     def initialize(options={})
       options[:site] ||= 'https://api.linkedin.com'
-      options[:authorize_path] ||= '/uas/oauth/authorize'
-      options[:request_token_path] ||= '/uas/oauth/requestToken'
-      options[:access_token_path] ||= '/uas/oauth/accessToken'
+      options[:authorize_url] ||= 'https://www.linkedin.com/oauth/v2/authorize'
+      options[:token_url]     ||= 'https://www.linkedin.com/oauth/v2/accessToken'
       options[:path_prefix] ||= '/v1'
 
       super(options)

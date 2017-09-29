@@ -12,6 +12,7 @@ require 'blue_jay/logging/gelf_formatter'
 
 require 'blue_jay/client'
 require 'blue_jay/clients/oauth_client'
+require 'blue_jay/clients/oauth2_client'
 require 'blue_jay/clients/twitter_client'
 require 'blue_jay/clients/linked_in_client'
 require 'blue_jay/clients/facebook_client'

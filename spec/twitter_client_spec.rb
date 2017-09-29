@@ -57,7 +57,7 @@ describe TwitterClient do
 
     it "can tweet with media from remote url" do
       require 'open-uri'
-      url = "http://dev.tweetmyjobs.com.s3.amazonaws.com/social_media_profiles/218/twitter_images/7395635.jpg"
+      url = "http://staging-careerarc-com.s3.amazonaws.com/test/twitter_card.jpg"
       media = open(url)
       response = config.client.tweet_with_media("Media with remote url #{rand(9999) + 1}", media)
       response.should be_successful
