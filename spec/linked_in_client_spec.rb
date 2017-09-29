@@ -2,6 +2,8 @@ require 'spec_helper'
 require 'yaml'
 include BlueJay
 
+LINKEDIN_TEST_COMPANY_ID = 2414183
+
 config = SpecHelper::Config.new(BlueJay::LinkedInClient)
 
 describe LinkedInClient do
@@ -36,8 +38,22 @@ describe LinkedInClient do
       response.data["updateKey"].nil?.should be false
     end
 
+    it "can share to a company page" do
+      response = config.client.company_share(LINKEDIN_TEST_COMPANY_ID,
+        comment: "Hello World from dimension #{Random.rand(9999)+1}",
+        visibility: { code: 'anyone' },
+        content: {
+          title: "This is the title",
+          description: "This is the description",
+          'submitted-url' => "http://www.google.com"
+        })
+
+      response.successful?.should be true
+      response.data["updateKey"].nil?.should be false
+    end
+
     it "can get company info" do
-      response = config.client.company_info(2414183, 'square-logo-url')
+      response = config.client.company_info(LINKEDIN_TEST_COMPANY_ID, 'square-logo-url')
       response.successful?.should be true
       response.data["squareLogoUrl"].nil?.should be false
     end

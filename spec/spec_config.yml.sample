@@ -17,7 +17,6 @@ facebook:
   page_id:            12345
 linkedin:
  credentials:
-  consumer_key:       my_consumer_key
-  consumer_secret:    my_consumer_secret
+  client_id:          my_consumer_key
+  client_secret:      my_consumer_secret
   token:              my_token
-  secret:             my_secret

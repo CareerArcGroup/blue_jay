@@ -66,7 +66,7 @@ module BlueJay
     end
 
     def to_s
-      "#{code} - #{message}"
+      "#{code} - #{message} #{data unless successful?}"
     end
 
     private
