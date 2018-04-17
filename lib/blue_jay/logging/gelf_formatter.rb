@@ -3,6 +3,13 @@ require 'logger'
 module BlueJay
   module Logging
     class GelfFormatter < ::Logger::Formatter
+      attr_reader :options
+
+      def initialize(options={})
+        @options = options
+        super()
+      end
+
       def call(severity, timestamp, progname, msg)
         case msg
         when BlueJay::Trace
@@ -15,7 +22,7 @@ module BlueJay
       private
 
       def hashify_trace(severity, timestamp, progname, trace)
-        {
+        result = {
           short_message: "#{severity} #{progname}: #{trace.summary}",
           level: severity,
           timestamp: timestamp,
@@ -36,6 +43,12 @@ module BlueJay
           _http_log: trace.log,
           _duration: trace.duration
         }
+
+        result.each do |key, value|
+          result[key] = truncate_property(value) if value.is_a?(String)
+        end
+
+        result
       end
 
       def remove_binary(obj)
@@ -52,6 +65,14 @@ module BlueJay
         else
           obj
         end
+      end
+
+      def truncate_property(value)
+        max_property_length ? value[0..max_property_length] : value
+      end
+
+      def max_property_length
+        options.fetch(:max_property_length, 30_000)
       end
 
       def omission_string
