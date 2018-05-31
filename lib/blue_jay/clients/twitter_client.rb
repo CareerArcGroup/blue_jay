@@ -26,7 +26,7 @@ module BlueJay
 
     def authorized?
       data = rate_limit_status
-      data && (data["resources"] && data["resources"].count > 0) || data.rate_limit.to_i > 0
+      data && !data["resources"].nil?
     end
 
     # ============================================================================
