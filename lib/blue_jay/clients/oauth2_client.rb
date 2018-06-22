@@ -24,7 +24,7 @@ module BlueJay
     end
 
     def authorize(code, redirect_uri, options={})
-      @access_token = oauth_client.auth_code.get_token(code, options.merge(redirect_uri: redirect_uri))
+      @access_token = oauth_client.auth_code.get_token(code, options.merge(redirect_uri: redirect_uri, mode: token_mode))
       @token = @access_token.token
       @access_token
     end
@@ -43,6 +43,10 @@ module BlueJay
 
     def token
       @token ||= options[:token]
+    end
+
+    def token_mode
+      options.fetch(:token_mode, :header)
     end
 
     # ============================================================================
