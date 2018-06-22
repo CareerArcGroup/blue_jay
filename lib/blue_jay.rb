@@ -18,12 +18,14 @@ require 'blue_jay/clients/linked_in_client'
 require 'blue_jay/clients/linked_in_client_v1'
 require 'blue_jay/clients/facebook_client'
 require 'blue_jay/clients/slack_client'
+require 'blue_jay/clients/instagram_client'
 
 require 'blue_jay/parser'
 require 'blue_jay/parsers/twitter_parser'
 require 'blue_jay/parsers/linked_in_parser'
 require 'blue_jay/parsers/facebook_parser'
 require 'blue_jay/parsers/slack_parser'
+require 'blue_jay/parsers/instagram_parser'
 
 module BlueJay
   extend self
