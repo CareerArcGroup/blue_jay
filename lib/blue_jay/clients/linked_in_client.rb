@@ -71,7 +71,7 @@ module BlueJay
 
     # get the list of companies of which the user is an administrator...
     def admin_for_companies
-      get("/companies", :"is-company-admin" => true)
+      get("/companies", :"is-company-admin" => true, :"count" => 100)
     end
 
     # get general information about a company. optionally pass in an array
