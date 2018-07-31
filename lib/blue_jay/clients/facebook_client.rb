@@ -99,6 +99,10 @@ module BlueJay
     # Photo Methods
     # ============================================================================
 
+    def create_album(name, options={})
+      post('/me/albums', options.merge(name: name))
+    end
+
     def albums(options={})
       get('/me/albums', options)
     end
