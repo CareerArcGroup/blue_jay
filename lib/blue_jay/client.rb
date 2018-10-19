@@ -51,6 +51,7 @@ module BlueJay
     end
 
     def post(path, body='')
+      update_runtime_terms(body) if body.is_a?(Hash)
       perform_request(:post, path, body)
     end
 
@@ -128,9 +129,17 @@ module BlueJay
     # provided hash of query key-value pairs...
     def uri_with_query(url, query={})
       uri = URI.parse(url)
+
+      # build combined query from base url
+      # along with any addition query in hash...
       base_query = uri.query != nil ? URI.decode_www_form(uri.query) : []
       addl_query = Hash[query.map{|k,v| [k.to_s,v]}]
-      new_query = Hash[*base_query.flatten].merge(addl_query)
+      new_query  = Hash[*base_query.flatten].merge(addl_query)
+
+      # add query values to runtime filtered terms...
+      update_runtime_terms(new_query)
+
+      # build the final uri
       uri.query = URI.encode_www_form(new_query.to_a)
       uri.to_s
     end
@@ -181,9 +190,23 @@ module BlueJay
       end
     end
 
+    def runtime_filtered_terms
+      @runtime_filtered_terms ||= {}
+    end
+
+    def update_runtime_terms(terms)
+      filtered_keys = self.class.filtered_attributes.map(&:to_s)
+
+      terms.each do |term, value|
+        if filtered_keys.include?(term.to_s)
+          runtime_filtered_terms.update(term.to_sym => value)
+        end
+      end
+    end
+
     def filtered_terms
       self.class.filtered_attributes.map do |term|
-        self.send(term)
+        runtime_filtered_terms.fetch(term, self.send(term))
       end.compact
     end
 
