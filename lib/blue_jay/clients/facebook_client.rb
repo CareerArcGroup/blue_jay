@@ -93,11 +93,9 @@ module BlueJay
       get('/me', options)
     end
 
-    # DEPRECATED
-    # see: https://developers.facebook.com/docs/graph-api/changelog/breaking-changes#login-4-24
-    # def share(options={})
-    #   post('/me/feed', options)
-    # end
+    def share(options={})
+      post('/me/feed', options)
+    end
 
     # ============================================================================
     # Photo Methods
@@ -111,16 +109,14 @@ module BlueJay
       get('/me/albums', options)
     end
 
-    # DEPRECATED
-    # see: https://developers.facebook.com/docs/graph-api/changelog/breaking-changes#login-4-24
-    # def upload_photo(image_or_url, options={})
-    #   album_id = options.delete(:album_id)
-    #   options = multipart?(item: image_or_url) ?
-    #     options.merge(source: image_or_url) :
-    #     options.merge(url: image_or_url)
+    def upload_photo(image_or_url, options={})
+      album_id = options.delete(:album_id)
+      options = multipart?(item: image_or_url) ?
+        options.merge(source: image_or_url) :
+        options.merge(url: image_or_url)
 
-    #   post("/#{album_id}/photos", options)
-    # end
+      post("/#{album_id}/photos", options)
+    end
 
     # ============================================================================
     # Page Methods
