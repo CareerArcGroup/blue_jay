@@ -5,6 +5,7 @@ module BlueJay
   class FacebookClient < Client
 
     LONG_TOKEN_EXPIRES_IN = 5184000   # 60 days
+    ME_EDGE = 'me'.freeze
 
     filtered_attributes :client_id, :client_secret, :access_token, :appsecret_proof
 
@@ -14,12 +15,12 @@ module BlueJay
 
     def initialize(options={})
       options[:site] ||= 'https://graph.facebook.com'
-      options[:path_prefix] ||= '/v2.10'
+      options[:path_prefix] ||= '/v3.0'
       super(options)
     end
 
     def authorize_url(redirect_uri, options={})
-      uri_with_query("https://www.facebook.com/v2.10/dialog/oauth", options.merge(
+      uri_with_query("https://www.facebook.com/v3.0/dialog/oauth", options.merge(
         client_id: client_id,
         redirect_uri: redirect_uri
       ))
@@ -90,11 +91,20 @@ module BlueJay
     # ============================================================================
 
     def account_info(options={})
-      get('/me', options)
+      edge_info("me", options)
+    end
+
+    def edge_info(edge, options={})
+      get("/#{edge}", options)
     end
 
     def share(options={})
-      post('/me/feed', options)
+      edge = extract_edge!(options)
+      options[:attached_media] = options[:attached_media].inject([]) do |memo, media_fbid|
+        memo << { "media_fbid" => media_fbid }
+      end if options[:attached_media]
+
+      post("/#{edge}/feed", options)
     end
 
     # ============================================================================
@@ -102,20 +112,22 @@ module BlueJay
     # ============================================================================
 
     def create_album(name, options={})
-      post('/me/albums', options.merge(name: name))
+      edge = extract_edge!(options)
+      post("/#{edge}/albums", options.merge(name: name))
     end
 
     def albums(options={})
-      get('/me/albums', options)
+      edge = extract_edge!(options)
+      get("/#{edge}/albums", options)
     end
 
     def upload_photo(image_or_url, options={})
-      album_id = options.delete(:album_id)
+      edge    = extract_edge!(options)
       options = multipart?(item: image_or_url) ?
         options.merge(source: image_or_url) :
         options.merge(url: image_or_url)
 
-      post("/#{album_id}/photos", options)
+      post("/#{edge}/photos", options)
     end
 
     # ============================================================================
@@ -131,6 +143,10 @@ module BlueJay
     end
 
     protected
+
+    def extract_edge!(options={})
+      options.delete(:edge) || options.delete(:user_id) || options.delete(:page_id) || options.delete(:album_id) || options.delete(:object_id) || ME_EDGE
+    end
 
     def access_token_request(options={})
       begin
@@ -167,7 +183,31 @@ module BlueJay
     end
 
     def transform_body(body)
+      # transform array-valued parameters to follow convention.
+      # for example, a body of { attached_media: [123, 456] } should
+      # be treated as { attached_media[0]: 123, attached_media[1]: 456 }
+      body = if body.is_a?(Hash)
+        body.inject({}) do |memo, (key, value)|
+          if value.is_a?(Array)
+            value.each_with_index { |v, index| memo.update("#{key}[#{index}]" => transform_value(v)) }
+            memo
+          else
+            memo.update(key => transform_value(value))
+          end
+        end
+      else
+        transform_value(body)
+      end
+
       URI.encode_www_form(body)
+    end
+
+    def transform_value(value)
+      case value
+        when Hash  then value.inject({}) { |memo, (k,v)| memo.update(k => transform_value(v)) }.to_json
+        when Array then value.inject([]) { |memo, v| memo << transform_value(v) }.to_json
+        else value
+      end
     end
 
     def response_parser

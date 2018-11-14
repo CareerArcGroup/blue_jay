@@ -23,29 +23,17 @@ describe FacebookClient do
       response.data["id"].nil?.should be false
     end
 
-    # DEPRECATED
-    # see https://developers.facebook.com/docs/graph-api/changelog/breaking-changes#login-4-24
-    # it "can share" do
-    #   response = config.client.share(message: "Hello World from dimension #{Random.rand(9999)+1}")
-    #   response.successful?.should be true
-    #   response.data["id"].nil?.should be false
-    # end
-
-    it "can get a list of the users's albums" do
+    it "can get a list of a users's albums" do
       response = config.client.albums
       response.successful?.should be true
       response.data["data"].nil?.should be false
     end
 
-    # DEPRECATED
-    # see https://developers.facebook.com/docs/graph-api/changelog/breaking-changes#login-4-24
-    # it "can upload a photo to the app album" do
-    #   ocean = File.new(File.expand_path("../assets/profile_banner.jpg", __FILE__))
-
-    #   response = config.client.upload_photo(ocean, message: "This is a banner", no_story: true, album_id: "1122787084448806")
-    #   response.successful?.should be true
-    #   response.data["id"].nil?.should be false
-    # end
+    it "can get a list of a page's albums" do
+      response = config.client.albums(page_id: config.settings["page_id"])
+      response.successful?.should be true
+      response.data["data"].nil?.should be false
+    end
 
     it "can retrieve a page access token" do
       response = config.client.page_access_token(config.settings["page_id"])
@@ -60,6 +48,34 @@ describe FacebookClient do
       response = config.client.create_tab(config.settings["page_id"], app_id: config.consumer_key, access_token: access_token)
 
       response.successful?.should be true
+    end
+
+    it "can post to a page with multiple images" do
+      photos = [
+        File.new(File.expand_path("../assets/ocean_portrait.jpg", __FILE__)),
+        File.new(File.expand_path("../assets/fishing_cat.jpg", __FILE__))
+        #File.new(File.expand_path("../assets/profile_banner.jpg", __FILE__)),
+        #File.new(File.expand_path("../assets/Twitter-BG_2_bg-image.jpg", __FILE__))
+      ]
+
+      token_response = config.client.page_access_token(config.settings["page_id"])
+      access_token = token_response.data["access_token"]
+
+      ids = photos.each_with_index.map do |photo, index|
+        response = config.client.upload_photo(photo, page_id: config.settings["page_id"], caption: "This is photo #{index} of #{photos.count}", published: false, access_token: access_token)
+        response.successful?.should be true
+        response.data["id"].nil?.should be false
+
+        response.data["id"]
+      end
+
+      #ids = ["1875456715841075", "1875456739174406"]
+
+      url = "https://www.careerarc.com/job-listing/the-job-window-enterprises-inc-jobs-marketing-assistant-27522892"
+
+      response = config.client.share(page_id: config.settings["page_id"], message: "Testing multi-photo posts from dimension #{Random.rand(9999)+1}. See here: #{url}", attached_media: ids, access_token: access_token)
+      response.successful?.should be true
+      response.data["id"].nil?.should be false
     end
 
   end
