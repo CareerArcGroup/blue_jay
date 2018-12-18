@@ -18,12 +18,13 @@ module BlueJay
       def initialize
         super(nil, nil, nil)
         @successful = false
-        @raw_response = OpenStruct.new(
-          code: "0",
-          message: "",
-          each_header: []
-        )
+        @status = Net::HTTPBadRequest
+        @data = {}
       end
+
+      def code; "400" end
+      def message; "" end
+      def headers; {} end
     end
 
     # ============================================================================
