@@ -40,6 +40,10 @@ module BlueJay
       options[:path_prefix]
     end
 
+    def pretend?
+      options[:pretend]
+    end
+
     protected
 
     # ============================================================================
@@ -61,6 +65,8 @@ module BlueJay
 
     # execute the HTTP request...
     def perform_request(method, path, body='', headers={})
+      return BlueJay::Response::Pretend.new if pretend?
+
       uri     = URI.join(site, "#{path_prefix}#{path}")
       request = BlueJay::Request.new(method, uri, body, add_standard_headers(headers))
       trace   = BlueJay::Trace.begin(request, filtered_terms)

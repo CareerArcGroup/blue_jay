@@ -1,5 +1,6 @@
 
 require 'blue_jay/exceptions/rate_limit_exception'
+require 'ostruct'
 
 module BlueJay
   class Response
@@ -11,6 +12,18 @@ module BlueJay
       @raw_response = response
 
       parse_response(response)
+    end
+
+    class Pretend < Response
+      def initialize
+        super(nil, nil, nil)
+        @successful = false
+        @raw_response = OpenStruct.new(
+          code: "0",
+          message: "",
+          each_header: []
+        )
+      end
     end
 
     # ============================================================================
@@ -72,7 +85,7 @@ module BlueJay
     private
 
     def parse_response(response)
-      @parser.parse_response(self, response)
+      @parser.parse_response(self, response) if @parser
     end
 
     def options
