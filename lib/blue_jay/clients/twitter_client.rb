@@ -12,7 +12,6 @@ module BlueJay
       options[:site] ||= 'https://api.twitter.com'
       options[:authorize_path] ||= '/oauth/authenticate'
       options[:path_prefix] ||= '/1.1'
-      options[:pretend] = true
 
       super(options)
     end
@@ -26,7 +25,8 @@ module BlueJay
     end
 
     def authorized?
-      false
+      data = rate_limit_status
+      data && !data["resources"].nil?
     end
 
     # ============================================================================
