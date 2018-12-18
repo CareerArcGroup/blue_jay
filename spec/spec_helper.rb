@@ -27,7 +27,7 @@ module SpecHelper
       BlueJay.logger = logger
       #BlueJay.trace!
 
-      options = { pretend: true }
+      options = { }
       options_with_credentials = options.merge(
         consumer_key: consumer_key,
         consumer_secret: consumer_secret,
