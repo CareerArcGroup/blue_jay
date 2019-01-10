@@ -80,20 +80,22 @@ module BlueJay
         obj.inject({}) { |m,(k,v)| m.update(k => filter(v)) }
       else
         value = obj.to_s.dup
-        filtered_terms.each do |filtered_term|
-          case filtered_term
-          when Regexp
-            matches = value.to_enum(:scan, filtered_term).map { Regexp.last_match }
-            matches.each do |match|
-              if match.names.include?("filtered")
-                value.gsub!(match[:filtered], FILTER_STRING)
+        unless value.blank?
+          filtered_terms.each do |filtered_term|
+            case filtered_term
+            when Regexp
+              matches = value.to_enum(:scan, filtered_term).map { Regexp.last_match }
+              matches.each do |match|
+                if match.names.include?("filtered")
+                  value.gsub!(match[:filtered], FILTER_STRING)
+                end
+                if match.names.include?("snipped")
+                  value.gsub!(match[:snipped], SNIP_STRING)
+                end
               end
-              if match.names.include?("snipped")
-                value.gsub!(match[:snipped], SNIP_STRING)
-              end
+            else
+              value.gsub!(filtered_term.to_s, FILTER_STRING)
             end
-          else
-            value.gsub!(filtered_term.to_s, FILTER_STRING)
           end
         end
         value
