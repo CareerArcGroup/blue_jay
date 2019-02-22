@@ -1,4 +1,3 @@
-
 module BlueJay
   class LinkedInClientV2 < OAuth2Client
 
@@ -31,8 +30,11 @@ module BlueJay
     # Status Methods - These act on Shares
     # ============================================================================
 
+    # for request shape see:
+    # https://docs.microsoft.com/en-us/linkedin/marketing/integrations/community-management/shares/share-api#post-shares
+
     def share(options={})
-      post("/ugcPosts", options)
+      post("/shares", options)
     end
 
     # ============================================================================
@@ -42,23 +44,25 @@ module BlueJay
     # get general information about the user. optionally pass in an array
     # of specific fields to get a refined list of information...
     def account_info(*fields)
-      field_selector = (fields != nil && fields.any?) ? "?projection=(#{fields.join(',')})" : ''
-      get("/me#{field_selector}")
+      get("/me#{field_selector(fields)}")
     end
 
     # get the list of companies of which the user is an administrator...
     def admin_for_companies
-      get("/companies", :"is-company-admin" => true, :"count" => 100)
+      get("/organizationalEntityAcls?q=roleAssignee&role=ADMINISTRATOR&state=APPROVED&count=100")
     end
 
     # get general information about a company. optionally pass in an array
     # of specific fields to get a refined list of information...
     def company_info(company_id, *fields)
-      field_selector = (fields != nil && fields.any?) ? ":(#{fields.join(',')})" : ''
-      get("/companies/#{company_id}#{field_selector}")
+      get("/organizations/#{company_id}#{field_selector(fields)}")
     end
 
     protected
+
+    def field_selector(fields)
+      (fields != nil && fields.any?) ? "?projection=(#{fields.join(',')})" : ''
+    end
 
     def add_standard_headers(headers={})
       super(headers.merge(
