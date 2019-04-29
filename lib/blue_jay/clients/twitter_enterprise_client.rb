@@ -18,7 +18,12 @@ module BlueJay
     end
 
     def historical(start_date = 1.day.ago.to_date, end_date = 1.minute.ago.to_date, options={})
-      post('/insights/engagement/historical', options.merge("start": start_date.to_s, "end": end_date.to_s, engagement_types: ["impressions", "engagements", "favorites", "retweets", "replies", "video_views", "url_clicks","hashtag_clicks", "detail_expands", "permalink_clicks", "email_tweet", "user_follows", "user_profile_clicks"], groupings: {by_tweet_by_day: {group_by: ["tweet.id", "engagement.type", "engagement.day", "engagement.hour"]}}).to_json)
+      groupings = { by_tweet_by_day: { group_by: ['tweet.id', 'engagement.day', 'engagement.type'] } }
+      if options[:by_hour].present?
+        groupings = { by_tweet_by_day: { group_by: ['tweet.id', 'engagement.type', 'engagement.day', 'engagement.hour'] } }
+        options.delete(:by_hour)
+      end
+      post('/insights/engagement/historical', options.merge("start": start_date.to_s, "end": end_date.to_s, engagement_types: ["impressions", "engagements", "favorites", "retweets", "replies", "video_views", "url_clicks","hashtag_clicks", "detail_expands", "permalink_clicks", "email_tweet", "user_follows", "user_profile_clicks"], groupings: groupings).to_json)
     end
 
     protected
