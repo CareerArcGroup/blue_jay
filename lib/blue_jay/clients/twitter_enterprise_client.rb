@@ -57,7 +57,7 @@ module BlueJay
     end
 
     def response_parser
-      BlueJay::TwitterParser
+      BlueJay::TwitterEnterpriseParser
     end
   end
 end
