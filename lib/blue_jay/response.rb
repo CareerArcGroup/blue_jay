@@ -48,6 +48,9 @@ module BlueJay
     def rate_limit_remaining=(val); @rate_limit_remaining=val end
     def rate_limit_reset_time; @rate_limit_reset_time end
     def rate_limit_reset_time=(val); @rate_limit_reset_time=val end
+    def rate_limit_sleep_seconds; @rate_limit_sleep_seconds end
+    def rate_limit_sleep_seconds=(val); @rate_limit_sleep_seconds=val end
+
 
     def raw_data?
       options[:raw_data]
