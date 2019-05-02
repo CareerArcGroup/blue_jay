@@ -28,6 +28,7 @@ require 'blue_jay/parsers/linked_in_parser'
 require 'blue_jay/parsers/facebook_parser'
 require 'blue_jay/parsers/slack_parser'
 require 'blue_jay/parsers/instagram_parser'
+require 'blue_jay/parsers/twitter_enterprise_parser'
 
 module BlueJay
   extend self
