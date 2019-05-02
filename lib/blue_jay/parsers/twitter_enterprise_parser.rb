@@ -17,10 +17,12 @@ module BlueJay
           response.rate_limited = true
           response.rate_limit_remaining = data[MINUTE_RATE_LIMIT_REMAINING_HEADER].to_i
           response.rate_limit_reset_time = Time.at(data[MINUTE_RATE_LIMIT_RESET_HEADER].to_i)
+          response.rate_limit_sleep_seconds = [[data[MINUTE_RATE_LIMIT_RESET_HEADER].to_i - Time.now.utc.to_i, 30].max, 60].min
         elsif data[SECOND_RATE_LIMIT_REMAINING_HEADER].to_i.zero?
           response.rate_limited = true
           response.rate_limit_remaining = data[SECOND_RATE_LIMIT_REMAINING_HEADER].to_i
           response.rate_limit_reset_time = Time.at(data[SECOND_RATE_LIMIT_RESET_HEADER].to_i)
+          response.rate_limit_sleep_seconds = 2
         end
       end
     end
