@@ -41,7 +41,7 @@ module BlueJay
         engagement_types: %w[impressions engagements favorites retweets replies video_views url_clicks hashtag_clicks detail_expands permalink_clicks email_tweet user_follows user_profile_clicks],
         groupings: {
           by_tweet_by_day: {
-            group_by: %w[tweet.id engagement.type engagement.day]
+            group_by: %w[tweet.id engagement.day engagement.type]
           }
         }
       }
