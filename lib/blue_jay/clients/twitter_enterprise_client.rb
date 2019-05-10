@@ -19,7 +19,7 @@ module BlueJay
     end
 
     def historical(start_date = 1.day.ago.to_date, end_date = 1.minute.ago.to_date, options = {})
-      params = default_totals_options.merge(options)
+      params = default_historical_options.merge(options)
       params[:start] = start_date.to_s
       params[:end] = end_date.to_s
       post('/insights/engagement/historical', params.to_json)
