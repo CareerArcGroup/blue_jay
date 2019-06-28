@@ -84,7 +84,6 @@ module BlueJay
     # ============================================================================
     # Account Methods - These act on the API account
     # ============================================================================
-
     def account_info(options = {})
       edge_info('me', options)
     end
@@ -100,6 +99,19 @@ module BlueJay
       end if options[:attached_media]
 
       post("/#{edge}/feed", options)
+    end
+
+    # ============================================================================
+    # Facebook Jobs Methods
+    # ============================================================================
+
+    def job_application(id)
+      options = { fields: "name,email,city_name,created_time,custom_responses,resume_url,education_experiences{school,area_of_study,start,end,graduated},work_experiences{company,position,current,start,end},phone_number" }
+      get("/#{id}", options)
+    end
+
+    def job_applications(external_job_id)
+      get("/#{external_job_id}/job_applications")
     end
 
     # ============================================================================
