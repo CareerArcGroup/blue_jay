@@ -106,13 +106,11 @@ module BlueJay
     # ============================================================================
 
     def job_application(id)
-      access_token_request(grant_type: 'client_credentials')
       options = { fields: "name,email,city_name,created_time,custom_responses,resume_url,education_experiences{school,area_of_study,start,end,graduated},work_experiences{company,position,current,start,end},phone_number" }
       get("/#{id}", options)
     end
 
     def job_applications(external_job_id)
-      access_token_request(grant_type: 'client_credentials')
       get("/#{external_job_id}/job_applications")
     end
 
