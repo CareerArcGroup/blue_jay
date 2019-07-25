@@ -106,7 +106,7 @@ module BlueJay
     # ============================================================================
 
     def job_application(id)
-      options = { fields: "name,email,city_name,created_time,custom_responses,resume_url,education_experiences{school,area_of_study,start,end,graduated},work_experiences{company,position,current,start,end},phone_number" }
+      options = { fields: "name,email,city_name,created_time,custom_responses,resume_url,education_experiences{school,area_of_study,start,end,graduated,summary},work_experiences{company,position,current,start,end,summary},phone_number" }
       get("/#{id}", options)
     end
 
