@@ -59,11 +59,11 @@ module BlueJay
     ACCESS_TOKEN_OPTIONS = [:refresh_token, :expires_in, :expires_at, :mode, :header_format, :param_name]
 
     def oauth_client
-      @oauth_client ||= OAuth2::Client.new(client_id, client_secret, oauth_client_options)
+      @oauth_client ||= OAuth2::Client.new(client_id, client_secret, oauth_client_options.merge!(logger: http_logger))
     end
 
     def access_token
-      @access_token ||= OAuth2::AccessToken.new(oauth_client, token, access_token_options)
+      @access_token ||= OAuth2::AccessToken.new(oauth_client, token, access_token_options.merge!(logger: http_logger))
     end
 
     def oauth_client_options
