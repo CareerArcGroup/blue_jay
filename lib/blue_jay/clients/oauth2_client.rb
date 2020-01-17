@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 require 'oauth2'
 require 'blue_jay/response'
@@ -5,7 +6,6 @@ require 'securerandom'
 
 module BlueJay
   class OAuth2Client < Client
-
     # filter sensitive data out of all requests...
     # some of these should never appear in the request anyway,
     # but they're listed here just to be safe...
@@ -15,15 +15,15 @@ module BlueJay
     # Client Initializers and Public Methods
     # ============================================================================
 
-    def initialize(options={})
+    def initialize(options = {})
       @options = options
     end
 
-    def authorize_url(redirect_uri, options={})
+    def authorize_url(redirect_uri, options = {})
       oauth_client.auth_code.authorize_url(options.merge(redirect_uri: redirect_uri))
     end
 
-    def authorize(code, redirect_uri, options={})
+    def authorize(code, redirect_uri, options = {})
       @access_token = oauth_client.auth_code.get_token(code, options.merge(redirect_uri: redirect_uri, mode: token_mode))
       @token = @access_token.token
       @access_token
@@ -55,28 +55,39 @@ module BlueJay
 
     protected
 
-    OAUTH_CLIENT_OPTIONS = [:site, :redirect_uri, :authorize_url, :token_url, :token_method, :auth_scheme, :connection_opts, :max_redirects, :raise_errors]
-    ACCESS_TOKEN_OPTIONS = [:refresh_token, :expires_in, :expires_at, :mode, :header_format, :param_name]
+    OAUTH_CLIENT_OPTIONS = %i[site redirect_uri authorize_url token_url token_method auth_scheme connection_opts max_redirects raise_errors].freeze
+    ACCESS_TOKEN_OPTIONS = %i[refresh_token expires_in expires_at mode header_format param_name].freeze
 
     def oauth_client
-      @oauth_client ||= OAuth2::Client.new(client_id, client_secret, oauth_client_options.merge!(logger: http_logger))
+      @oauth_client ||= OAuth2::Client.new(client_id, client_secret, oauth_client_options)
     end
 
     def access_token
-      @access_token ||= OAuth2::AccessToken.new(oauth_client, token, access_token_options.merge!(logger: http_logger))
+      @access_token ||= OAuth2::AccessToken.new(oauth_client, token, access_token_options)
     end
 
     def oauth_client_options
-      options.select {|k,v| OAUTH_CLIENT_OPTIONS.include? k}
+      options.select { |k, _v| OAUTH_CLIENT_OPTIONS.include? k }.merge(common_options)
     end
 
     def access_token_options
-      options.select {|k,v| ACCESS_TOKEN_OPTIONS.include? k}
+      options.select { |k, _v| ACCESS_TOKEN_OPTIONS.include? k }.merge(common_options)
+    end
+
+    def common_options
+      { connection_build: method(:build_connection) }
     end
 
     # when we build a request, sign it with the access token...
     def build_request(request)
-      super.tap {|r| access_token.headers.each { |h,v| r[h] = v } }
+      super.tap { |r| access_token.headers.each { |h, v| r[h] = v } }
+    end
+
+    def build_connection(builder)
+      builder.request :url_encoded
+      builder.adapter :net_http do |http|
+        http.set_debug_output(http_logger)
+      end
     end
 
     def transform_body(body)
