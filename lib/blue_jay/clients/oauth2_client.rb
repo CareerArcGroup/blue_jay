@@ -86,9 +86,7 @@ module BlueJay
     def build_connection(builder)
       builder.request :url_encoded
       builder.use FilteredLogger, logger, filtered_terms
-      builder.adapter :net_http do |http|
-        http.set_debug_output(http_logger)
-      end
+      builder.adapter Faraday.default_adapter
     end
 
     def transform_body(body)
