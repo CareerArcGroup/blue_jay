@@ -1,5 +1,6 @@
 
 require 'blue_jay'
+require 'pry'
 
 module SpecHelper
   class Config
