@@ -19,6 +19,38 @@ module BlueJay
       @filtered_terms = filtered_terms
     end
 
+    def self.filter(obj, filtered_terms)
+      case obj
+      when BlueJay::Response
+        obj
+      when BlueJay::Request
+        BlueJay::Request.new(obj.method, filter(obj.uri, filtered_terms), filter(obj.body, filtered_terms), filter(obj.headers, filtered_terms))
+      when URI
+        URI.parse(filter(obj.to_s, filtered_terms))
+      when Hash
+        obj.inject({}) { |m,(k,v)| m.update(k => filter(v, filtered_terms)) }
+      else
+        value = obj.to_s.dup
+        filtered_terms.each do |filtered_term|
+          case filtered_term
+          when Regexp
+            matches = value.to_enum(:scan, filtered_term).map { Regexp.last_match }
+            matches.each do |match|
+              if match.names.include?("filtered")
+                value.gsub!(match[:filtered], FILTER_STRING)
+              end
+              if match.names.include?("snipped")
+                value.gsub!(match[:snipped], SNIP_STRING)
+              end
+            end
+          else
+            value.gsub!(filtered_term.to_s, FILTER_STRING)
+          end
+        end unless (value.nil? || value == "")
+        value
+      end
+    end
+
     def self.begin(request, filtered_terms=[])
       new(filtered_terms).begin_request(request)
     end
@@ -69,35 +101,7 @@ module BlueJay
     private
 
     def filter(obj)
-      case obj
-      when BlueJay::Response
-        obj
-      when BlueJay::Request
-        BlueJay::Request.new(obj.method, filter(obj.uri), filter(obj.body), filter(obj.headers))
-      when URI
-        URI.parse(filter(obj.to_s))
-      when Hash
-        obj.inject({}) { |m,(k,v)| m.update(k => filter(v)) }
-      else
-        value = obj.to_s.dup
-        filtered_terms.each do |filtered_term|
-          case filtered_term
-          when Regexp
-            matches = value.to_enum(:scan, filtered_term).map { Regexp.last_match }
-            matches.each do |match|
-              if match.names.include?("filtered")
-                value.gsub!(match[:filtered], FILTER_STRING)
-              end
-              if match.names.include?("snipped")
-                value.gsub!(match[:snipped], SNIP_STRING)
-              end
-            end
-          else
-            value.gsub!(filtered_term.to_s, FILTER_STRING)
-          end
-        end unless (value.nil? || value == "")
-        value
-      end
+      self.class.filter(obj, filtered_terms)
     end
 
     def include_log?

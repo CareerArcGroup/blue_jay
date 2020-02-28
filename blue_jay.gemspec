@@ -14,14 +14,17 @@ Gem::Specification.new do |s|
   s.homepage	= 'https://github.com/CareerArcGroup/blue_jay'
   s.license = 'MIT'
 
+  s.add_dependency "faraday", "~> 0.9.2"
   s.add_dependency "oauth", "~> 0"
   s.add_dependency "oauth2", "~> 1.4"
   s.add_dependency "json", "~> 1.8"
-  s.add_dependency "multipart-post", "~> 2"
+  s.add_dependency "multipart-post", "2.0.0"
   s.add_development_dependency "bundler", "~> 1.12"
   s.add_development_dependency "rspec", "~> 3.5"
   s.add_development_dependency "simplecov", "~> 0"
   s.add_development_dependency 'rubocop', '~> 0.64.0'
+  s.add_development_dependency 'pry', '~> 0.12'
+  s.add_development_dependency 'pry-byebug', '~> 3.7'
 
   s.files = `git ls-files`.split("\n")
   s.executables = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact

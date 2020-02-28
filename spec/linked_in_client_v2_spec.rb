@@ -46,6 +46,7 @@ describe LinkedInClient do
             text: "Hello World from dimension #{Random.rand(9999)+1}"
           }
         }
+      )
 
       response.successful?.should be true
       response.data["activity"].nil?.should be false
