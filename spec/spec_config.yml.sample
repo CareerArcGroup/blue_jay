@@ -30,3 +30,9 @@ instagram:
   client_id:          my_consumer_key
   client_secret:      my_consumer_secret
   token:              my_token
+bitly
+ credentials:
+  client_id:          my_consumer_key
+  client_secret:      my_consumer_secret
+  token:              my_token
+  
