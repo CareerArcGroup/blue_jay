@@ -45,7 +45,7 @@ describe FacebookClient do
     it "can create a page tab" do
       token_response = config.client.page_access_token(config.settings["page_id"])
       access_token = token_response.data["access_token"]
-      response = config.client.create_tab(config.settings["page_id"], app_id: config.consumer_key, access_token: access_token)
+      response = config.client.create_tab(config.settings["page_id"], app_id: config.credentials[:consumer_key], access_token: access_token)
 
       response.successful?.should be true
     end

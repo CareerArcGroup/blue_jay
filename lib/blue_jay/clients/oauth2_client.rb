@@ -85,9 +85,8 @@ module BlueJay
 
     def build_connection(builder)
       builder.request :url_encoded
-      builder.adapter :net_http do |http|
-        http.set_debug_output(http_logger)
-      end
+      builder.use FilteredLogger, logger, filtered_terms
+      builder.adapter Faraday.default_adapter
     end
 
     def transform_body(body)
@@ -97,5 +96,32 @@ module BlueJay
         body.to_s
       end
     end
+
+    class FilteredLogger < Faraday::Response::Logger
+      def initialize(app, logger, filtered_terms)
+        @actual_logger = logger
+        @filtered_terms = filtered_terms
+
+        super(app, BlueJay::Logging::HttpLogger.new, bodies: true, headers: true)
+      end
+
+      def call(env)
+        @logger.reset!
+        super
+      end
+
+      def on_complete(env)
+        super
+
+        message = BlueJay::Trace.filter(@logger.read, @filtered_terms)
+
+        if env.response.success?
+          @actual_logger.debug(message)
+        else
+          @actual_logger.warn(message)
+        end
+      end
+    end
+    private_constant :FilteredLogger
   end
 end
