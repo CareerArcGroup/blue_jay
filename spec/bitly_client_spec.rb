@@ -40,7 +40,7 @@ describe BitlyClient do
         response = config.client.shorten('https://www.careerarc.com/')
 
         expect(response).to be_successful
-        expect(response.data['link'].start_with?('http://bit.ly/')).to be_truthy
+        expect(response.data['link'].start_with?('https://bit.ly/')).to be_truthy
         expect(response.data['long_url']).to eq('https://www.careerarc.com/')
       end
     end

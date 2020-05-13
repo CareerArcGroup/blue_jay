@@ -216,12 +216,6 @@ module BlueJay
       end.compact
     end
 
-    filtered_attributes :multipart_snipper
-
-    def multipart_snipper
-      %r{--#{Multipartable::DEFAULT_BOUNDARY}(?<snipped>.*?)--#{Multipartable::DEFAULT_BOUNDARY}--}m
-    end
-
     def http_logger
       @http_logger ||= BlueJay::Logging::HttpLogger.new
     end
