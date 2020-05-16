@@ -16,7 +16,7 @@ module BlueJay
       @end_time = nil
       @duration = 0
       @log = nil
-      @filtered_terms = filtered_terms
+      @filtered_terms = filtered_terms.select { |term| !term.nil? && term != '' }
     end
 
     def self.filter(obj, filtered_terms)
