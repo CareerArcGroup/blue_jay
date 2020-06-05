@@ -15,7 +15,7 @@ module BlueJay
 
     def initialize(options = {})
       options[:site] ||= 'https://graph.facebook.com'
-      options[:path_prefix] ||= '/v3.0'
+      options[:path_prefix] ||= '/v6.0'
       super(options)
     end
 
