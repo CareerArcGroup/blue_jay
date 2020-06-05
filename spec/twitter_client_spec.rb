@@ -166,18 +166,6 @@ describe TwitterClient do
     end
   end
 
-  describe "#update_profile_background_image" do
-    let(:background_image) { File.new(File.expand_path("../assets/Twitter-BG_2_bg-image.jpg", __FILE__)) }
-
-    context "with valid image" do
-      it "updates the profile background image" do
-        response = config.client.update_profile_background_image(background_image)
-        response.status.should be Net::HTTPOK
-        response.should be_successful
-      end
-    end
-  end
-
   describe "#update_profile_image" do
     let(:image) { File.new(File.expand_path("../assets/Twitter-BG_2_bg-image.jpg", __FILE__)) }
 
