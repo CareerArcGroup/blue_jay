@@ -50,18 +50,13 @@ module BlueJay
     # Simple HTTP methods
     # ============================================================================
 
-    def get(path, params={}, headers={})
-      perform_request(:get, uri_with_query(path, params), '', headers)
+    def get(path, params={})
+      perform_request(:get, uri_with_query(path, params))
     end
 
-    def post(path, body='', headers={})
+    def post(path, body='')
       update_runtime_terms(body) if body.is_a?(Hash)
-      perform_request(:post, path, body, headers)
-    end
-
-    def put(path, body='', headers={})
-      update_runtime_terms(body) if body.is_a?(Hash)
-      perform_request(:put, path, body, headers)
+      perform_request(:post, path, body)
     end
 
     # ============================================================================
@@ -72,7 +67,7 @@ module BlueJay
     def perform_request(method, path, body='', headers={})
       return BlueJay::Response::Pretend.new if pretend?
 
-      uri     = path.start_with?('/') ? URI.join(site, "#{path_prefix}#{path}") : URI.parse(path)
+      uri     = URI.join(site, "#{path_prefix}#{path}")
       request = BlueJay::Request.new(method, uri, body, add_standard_headers(headers))
       trace   = BlueJay::Trace.begin(request, filtered_terms)
 
@@ -97,37 +92,21 @@ module BlueJay
     # build the HTTP request object, depending
     # on the method and the content (handle multi-part POSTs)...
     def build_request(request)
-      request_uri = request.uri.request_uri
       http_request = case request.method
         when :get
-          Net::HTTP::Get.new(request_uri)
+          Net::HTTP::Get.new(request.uri.to_s)
         when :post
           multipart?(request.body) ?
-            Net::HTTP::Post::Multipart.new(request_uri, to_multipart_params(request.body)) :
-            Net::HTTP::Post.new(request_uri).tap do |req|
+            Net::HTTP::Post::Multipart.new(request.uri.path, to_multipart_params(request.body)) :
+            Net::HTTP::Post.new(request.uri.path).tap do |req|
               req["Content-Type"] ||= "application/x-www-form-urlencoded"
               req.body = transform_body(request.body)
-            end
-        when :put
-          multipart?(request.body) ?
-            Net::HTTP::Put::Multipart.new(request_uri, to_multipart_params(request.body)) :
-            Net::HTTP::Put.new(request_uri).tap do |req|
-              if request.body.respond_to?(:to_io) || request.body.is_a?(UploadIO)
-                request.headers['Content-Type'] = BlueJay::MIME.mime_type_for(request.body.path)
-                request.headers['Content-Length'] = request.body.size
-
-                req.body_stream = request.body
-              else
-                req.body = transform_body(request.body)
-              end
             end
         else
           raise ArgumentError, "Unsupported method '#{request.method}'"
         end
 
-      request.headers['Content-Type'] = http_request['Content-Type'] if multipart?(request.body)
       request.headers.each { |key,value| http_request[key] = value }
-
       http_request
     end
 
