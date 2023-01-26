@@ -113,7 +113,14 @@ module BlueJay
             Net::HTTP::Put::Multipart.new(request_uri, to_multipart_params(request.body)) :
             Net::HTTP::Put.new(request_uri).tap do |req|
               if request.body.respond_to?(:to_io) || request.body.is_a?(UploadIO)
-                request.headers['Content-Type'] = request.body.content_type
+                request.headers['Content-Type'] = if request.body.respond_to?(:content_type)
+                  request.body.content_type
+                elsif request.body.respond_to?(:path)
+                  Voyager::MIME.mime_type_for(request.body.path)
+                else
+                  "application/octet-stream"
+                end
+
                 request.headers['Content-Length'] = request.body.size
 
                 req.body_stream = request.body
