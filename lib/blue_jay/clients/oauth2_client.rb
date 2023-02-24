@@ -29,6 +29,15 @@ module BlueJay
       @access_token
     end
 
+    def refresh!
+      return if access_token.nil? || access_token.refresh_token.nil?
+
+      refreshed_token = access_token.refresh!
+
+      @token = refreshed_token&.token
+      @access_token = refreshed_token
+    end
+
     # ============================================================================
     # Accessors and Options
     # ============================================================================
