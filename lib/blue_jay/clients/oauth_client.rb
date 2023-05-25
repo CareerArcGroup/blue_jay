@@ -74,6 +74,19 @@ module BlueJay
       options.select {|k,v| CONSUMER_OPTIONS.include? k}
     end
 
+    def with_site(new_site)
+      original_site = options[:site]
+      options[:site] = new_site
+
+      begin
+        yield
+      ensure
+        options[:site] = original_site
+        @consumer = nil
+        @access_token = nil
+      end
+    end
+
     # when we build a request, sign it with the access token...
     def build_request(request)
       super.tap {|r| access_token.sign! r }
