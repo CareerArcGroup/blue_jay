@@ -4,6 +4,13 @@ module BlueJay
 
     filtered_attributes :snipped_data
 
+    MAX_CHUNK_SIZE = 3*1024*1024
+    MEDIA_CATEGORIES = {
+      'image' => 'tweet_image',
+      'gif'   => 'tweet_gif',
+      'video' => 'tweet_video'
+    }.freeze
+
     # ============================================================================
     # Client Initializers and Public Methods
     # ============================================================================
@@ -12,6 +19,8 @@ module BlueJay
       options[:site] ||= 'https://api.twitter.com'
       options[:authorize_path] ||= '/oauth/authenticate'
       options[:path_prefix] ||= '/1.1'
+      options[:upload_site] = 'https://upload.twitter.com'
+      options[:upload_endpoint] = '/media/upload.json'
 
       super(options)
     end
@@ -160,18 +169,32 @@ module BlueJay
     #   place_id                A place in the world (ID).
     #   display_coordinates     Whether or not to put a pin on the exact coordinates of the tweet.
     #
-    def tweet(message, options={})
-      post("/statuses/update.json", options.merge(status: message))
+    def tweet(message, media_ids = nil, api_version = 1)
+      if api_version == 2
+        tweet_v2(message, media_ids)
+      else
+        tweet_v1(message, media_ids)
+      end
     end
 
-    # Tweets with a picture :-)
-    def tweet_with_media(message, image, options = {})
-      post("/statuses/update_with_media.json", options.merge(:status => message, :'media[]' => image))
+    def tweet_v1(message, media_ids = nil)
+      tweet_options = { status: message }
+      tweet_options[:media_options] = media_ids.join(',') if media_ids
+
+      post("/statuses/update.json", tweet_options)
     end
 
     # Destroys the status specified by the required ID parameter. The authenticating user must
     # be the author of the specified status. Returns the destroyed status if successful.
-    def un_tweet(tweet_id)
+    def delete_tweet(tweet_id, version = 1)
+      if version == 2
+        delete_tweet_v2(tweet_id)
+      else
+        delete_tweet_v1(tweet_id)
+      end
+    end
+
+    def delete_tweet_v1
       post("/statuses/destroy/#{tweet_id}.json")
     end
 
@@ -183,9 +206,103 @@ module BlueJay
       get("/statuses/user_timeline.json", options)
     end
 
+    # ============================================================================
+    # V2 API
+    # ============================================================================
+    def tweet_v2(message, media_ids = nil)
+      tweet_options = { text: message_text }
+      tweet_options[:media] = { media_ids: media_ids } if media_ids.any?
+
+      post('https://api.twitter.com/2/tweets', tweet_options.to_json, 'Content-Type' => 'application/json' )
+    end
+
+    def delete_tweet_v2(tweet_id)
+      delete("https://api.twitter.com/2/tweets/#{tweet_id}")
+    end
+
+    def recent_tweets_v2(options = {})
+      get('https://api.twitter.com/2/tweets/search/recent', search_options)
+    end
+
+    def upload_media(media_url, media_type)
+      io = BlueJay::Util.upload_from(media_url)
+      tot_chunks = (io.size.to_f/MAX_CHUNK_SIZE).ceil
+      media_category = MEDIA_CATEGORIES[media_type]
+
+      init_resp = upload_init(io.size, io.content_type, media_category)
+      return init_resp unless init_resp.successful?
+
+      media_id = init_resp.data['media_id']
+
+      segment_index = 0
+      until (segment_index + 1) > tot_chunks
+        chunk = IO.binread(io, MAX_CHUNK_SIZE, (MAX_CHUNK_SIZE * segment_index))
+        append_resp = upload_append(media_id, chunk, segment_index)
+        return append_resp unless append_resp.successful?
+
+        segment_index += 1
+      end
+
+      upload_finalize(media_id)
+    end
+
+    def upload_init(size, media_type, media_category)
+      init_opts = {
+        command: 'INIT',
+        total_bytes: size,
+        media_type: media_type,
+        media_category: media_category
+      }
+
+      with_site(upload_site) do
+        post(uri_with_query(upload_endpoint, init_opts))
+      end
+    end
+
+    def upload_append(media_id, chunk, index)
+      with_site(upload_site) do
+        post(
+         upload_endpoint,
+          {
+            command: 'APPEND',
+            media_id: media_id,
+            media_data: Base64.encode64(chunk),
+            segment_index: index
+          }
+        )
+      end
+    end
+
+    def upload_finalize(media_id)
+      with_site(upload_site) do
+        post(
+          uri_with_query(
+            upload_endpoint,
+            { command: 'FINALIZE', media_id: media_id }
+          )
+        )
+      end
+    end
+
+    def upload_status(media_id)
+      with_site(upload_site) do
+        get(
+          upload_endpoint,
+          { command: 'STATUS', media_id: media_id }
+        )
+      end
+    end
+
+    def upload_site
+      options[:upload_site]
+    end
+
+    def upload_endpoint
+      options[:upload_endpoint]
+    end
+
     alias :update :tweet
     alias :update_with_media :tweet_with_media
-    alias :status_destroy :un_tweet
     alias :user_timeline :recent_tweets
 
     protected

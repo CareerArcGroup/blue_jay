@@ -20,12 +20,12 @@ module BlueJay
       response.rate_limit_reset_time = (reset_time_ticks) ? Time.at(reset_time_ticks.to_i) : nil
 
       begin
-
-        # try to parse the response as JSON (unless @raw_data)...
-        response.data = (response.raw_data? || data.body.length < 2) ? data.body : JSON.parse(data.body)
-        response.errors = response.data['errors'] if response.data.is_a?(Hash)
-        response.data['error'] ||= response.errors.map { |e| e['message'] }.join(',') if response.errors
-
+        if response.status != Net::HTTPNoContent
+          # try to parse the response as JSON (unless @raw_data)...
+          response.data = (response.raw_data? || data.body.length < 2) ? data.body : JSON.parse(data.body)
+          response.errors = response.data['errors'] if response.data.is_a?(Hash)
+          response.data['error'] ||= response.errors.map { |e| e['message'] }.join(',') if response.errors
+        end
         # errors can be detected by the status code (not Success) or
         # by the presence of an "errors" object in the de-serialized response...
         response.successful = (data.kind_of?(Net::HTTPSuccess) && response.errors.nil?)
