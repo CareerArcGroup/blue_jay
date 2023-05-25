@@ -179,7 +179,7 @@ module BlueJay
 
     def tweet_v1(message, media_ids = nil)
       tweet_options = { status: message }
-      tweet_options[:media_options] = media_ids.join(',') if media_ids
+      tweet_options[:media_ids] = media_ids.join(',') if media_ids.present?
 
       post("/statuses/update.json", tweet_options)
     end
@@ -194,7 +194,7 @@ module BlueJay
       end
     end
 
-    def delete_tweet_v1
+    def delete_tweet_v1(tweet_id)
       post("/statuses/destroy/#{tweet_id}.json")
     end
 
@@ -210,8 +210,8 @@ module BlueJay
     # V2 API
     # ============================================================================
     def tweet_v2(message, media_ids = nil)
-      tweet_options = { text: message_text }
-      tweet_options[:media] = { media_ids: media_ids } if media_ids.any?
+      tweet_options = { text: message }
+      tweet_options[:media] = { media_ids: media_ids } if media_ids.present?
 
       post('https://api.twitter.com/2/tweets', tweet_options.to_json, 'Content-Type' => 'application/json' )
     end
