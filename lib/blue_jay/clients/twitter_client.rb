@@ -224,6 +224,10 @@ module BlueJay
       get('https://api.twitter.com/2/tweets/search/recent', search_options)
     end
 
+    def tweets_v2(options = {})
+      get('https://api.twitter.com/2/tweets', options)
+    end
+
     def upload_media(media_url, media_type)
       io = BlueJay::Util.upload_from(media_url)
       tot_chunks = (io.size.to_f/MAX_CHUNK_SIZE).ceil
