@@ -76,7 +76,7 @@ module BlueJay
     def perform_request(method, path, body='', headers={})
       return BlueJay::Response::Pretend.new if pretend?
 
-      uri     = path.start_with?('/') ? URI.join(site, "#{path_prefix}#{path}") : URI.parse(path)
+      uri     = path.blank? || path.start_with?('/') ? URI.join(site, "#{path_prefix}#{path}") : URI.parse(path)
       request = BlueJay::Request.new(method, uri, body, add_standard_headers(headers))
       trace   = BlueJay::Trace.begin(request, filtered_terms)
 
